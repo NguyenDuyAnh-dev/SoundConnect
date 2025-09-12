@@ -1,0 +1,34 @@
+package com.example.demo.dto.response;
+
+import java.time.LocalDate;
+import java.util.Set;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class UserResponse {
+     String id;
+     String username;
+     String firstName;
+     String lastName;
+     LocalDate dob;
+     String name;
+     LocalDate birth;
+     String hometown;
+     String avatar;
+     String gender;
+     String bio;
+     int favorCount;
+     int disfavorCount;
+     int befavoredCount;
+     int bedisfavoredCount;
+     int notificationCount;
+     Boolean available;
+     Set<RoleResponse> roles;
+
+}

@@ -1,0 +1,16 @@
+package com.example.demo.dto.request;
+
+import lombok.*;
+import lombok.experimental.FieldNameConstants;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldNameConstants(level = AccessLevel.PRIVATE)
+public class PostRequest {
+    String author ;
+    String content ;
+    String location;
+    String media;
+}
