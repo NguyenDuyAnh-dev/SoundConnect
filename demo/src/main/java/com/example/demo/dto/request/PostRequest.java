@@ -2,6 +2,7 @@ package com.example.demo.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder
@@ -9,8 +10,7 @@ import lombok.experimental.FieldNameConstants;
 @AllArgsConstructor
 @FieldNameConstants(level = AccessLevel.PRIVATE)
 public class PostRequest {
-    String author ;
     String content ;
     String location;
-    String media;
+    MultipartFile file;
 }

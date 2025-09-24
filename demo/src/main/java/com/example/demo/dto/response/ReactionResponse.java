@@ -1,7 +1,5 @@
 package com.example.demo.dto.response;
 
-
-import com.example.demo.entity.Post;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,10 +11,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CommentDTO {
+public class ReactionResponse {
+    Integer id;
+    String userId;
+    String username;
     String avatar;
-    String authorName;
-    String content;
-    LocalDateTime commentTime;
-    Post post;
+    String type;           // LIKE, DISLIKE
+    LocalDateTime createdAt;
 }

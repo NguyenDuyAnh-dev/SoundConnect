@@ -1,11 +1,9 @@
 package com.example.demo.dto.response;
 
-
-import com.example.demo.entity.Post;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -13,10 +11,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CommentDTO {
-    String avatar;
-    String authorName;
-    String content;
-    LocalDateTime commentTime;
-    Post post;
+public class CommentPageResponse {
+    private List<CommentResponse> content;
+    private int pageNumber;
+    private long totalElements;
+    private int totalPages;
 }

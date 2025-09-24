@@ -8,6 +8,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    # Thêm multipart config
+  servlet:
+      multipart:
+        max-file-size: 40MB
+        max-request-size: 40MB
 
 
 springdoc:

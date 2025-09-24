@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -13,23 +13,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "reactions")
-public class Reaction {
-
+@Table(name = "user_profiles")
+public class UserProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToOne
+     String fullName;
+     String bio;
+     String avatarUrl;
+     LocalDate dateOfBirth;
+     String location;
+
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;
-
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
-    Post post;
-
-    // ví dụ: LIKE, DISLIKE
-    String type;
-
-    LocalDateTime createdAt;
 }

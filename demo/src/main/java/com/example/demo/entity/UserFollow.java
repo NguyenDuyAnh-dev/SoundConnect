@@ -13,23 +13,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "reactions")
-public class Reaction {
-
+@Table(name = "user_follows")
+public class UserFollow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    User user;
+    @ManyToOne @JoinColumn(name = "follower_id", nullable = false)
+    User follower;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
-    Post post;
-
-    // ví dụ: LIKE, DISLIKE
-    String type;
+    @ManyToOne @JoinColumn(name = "followed_id", nullable = false)
+    User followed;
 
     LocalDateTime createdAt;
 }

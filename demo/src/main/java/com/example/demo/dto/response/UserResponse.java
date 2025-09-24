@@ -16,18 +16,10 @@ public class UserResponse {
      String username;
      String firstName;
      String lastName;
-     LocalDate dob;
      String name;
-     LocalDate birth;
      String hometown;
      String avatar;
      String gender;
-     String bio;
-     int favorCount;
-     int disfavorCount;
-     int befavoredCount;
-     int bedisfavoredCount;
-     int notificationCount;
      Boolean available;
      Set<RoleResponse> roles;
 

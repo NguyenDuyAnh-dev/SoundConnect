@@ -1,6 +1,7 @@
 package com.example.demo.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -21,5 +22,6 @@ public class PostResponse {
     int comment;   // số lượng comment
     String media;
     int reaction;  // số lượng reaction
+
 }
 
