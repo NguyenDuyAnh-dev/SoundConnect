@@ -15,6 +15,7 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "You not have permission", HttpStatus.FORBIDDEN),
     UNAUTHENTICATED(1009, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNKNOWN_ERROR(9999, "Unknown error", HttpStatus.INTERNAL_SERVER_ERROR),
+    POST_NOT_EXISTED(1010, "Post not existed",HttpStatus.NOT_FOUND),
     INVALID_DOB(10010, "Date of birth must be at least {min}", HttpStatus.BAD_REQUEST);
     private int code;
     private String message;

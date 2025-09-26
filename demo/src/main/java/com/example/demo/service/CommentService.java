@@ -7,6 +7,8 @@ import com.example.demo.dto.response.CommentResponse;
 import com.example.demo.entity.Comment;
 import com.example.demo.entity.Post;
 import com.example.demo.entity.User;
+import com.example.demo.exception.AppException;
+import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.PostRepository;
 import com.example.demo.repository.UserRepository;
@@ -47,10 +49,10 @@ public class CommentService {
 //        Comment comment = modelMapper.map(request, Comment.class);
         Comment comment = new Comment();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
         comment.setPost(post);
         comment.setAuthor(user);
@@ -71,6 +73,8 @@ public class CommentService {
 
     // Lấy comment theo post
     public CommentPageResponse getCommentsByPostId(Integer postId, int page, int size) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("commentTime").descending());
 
         Page<Comment> commentPage = commentRepository.findByPost_Id(postId, pageable);

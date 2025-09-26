@@ -58,6 +58,16 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
+    // API lấy toàn bộ bài viết (có phân trang, sort)
+    @GetMapping
+    public ResponseEntity<Page<PostPageResponse>> getAllPosts(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<PostPageResponse> response = postService.getAllPosts(page, size);
+        return ResponseEntity.ok(response);
+    }
+
 
     //  Lấy post theo id
     @GetMapping("/{id}")

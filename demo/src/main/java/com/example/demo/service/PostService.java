@@ -7,6 +7,8 @@ import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.Post;
 import com.example.demo.entity.User;
 
+import com.example.demo.exception.AppException;
+import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.PostRepository;
 import com.example.demo.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -40,12 +42,15 @@ public class PostService {
     @Autowired
     CloudinaryService cloudinaryService;
 
+    @Autowired
+    NotificationService notificationService;
+
     // Tạo post mới
     public PostResponse createPost(String username, PostRequest postRequest) {
         System.out.println("bat dau tim user");
         // Tìm user
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         System.out.println("da qua dc buoc tim user");
 
         // Tạo entity Post
@@ -104,12 +109,18 @@ public class PostService {
         postResponse.setMedia(savedPost.getMedia());
         postResponse.setPostTime(savedPost.getPostTime());
 
+        // Broadcast realtime cho tất cả user
+        notificationService.broadcastNewPost(postResponse);
+
         return postResponse;
     }
 
 
     // Lấy tất cả post của một user
     public Page<PostPageResponse> getPostsByUser(String username, int page, int size) {
+        // Tìm user
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Post> posts = postRepository.findByAuthor_UsernameOrderByPostTimeDesc(username, pageable);
 
@@ -147,6 +158,24 @@ public class PostService {
         );
     }
 
+    public Page<PostPageResponse> getAllPosts(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("postTime").descending());
+
+        Page<Post> postPage = postRepository.findAll(pageable);
+
+        return postPage.map(post -> PostPageResponse.builder()
+                .id(post.getId())
+                .author(post.getAuthor().getUsername()) // hoặc tên hiển thị
+                .content(post.getContent())
+                .location(post.getLocation())
+                .media(post.getMedia())
+                .postTime(post.getPostTime())
+                .reactionCount(post.getReactions() != null ? post.getReactions().size() : 0)
+                .commentCount(post.getCommentList() != null ? post.getCommentList().size() : 0)
+                .build()
+        );
+    }
+
 
     // Lấy post theo id
 //    public Optional<Post> getPostById(Integer id) {
@@ -155,7 +184,7 @@ public class PostService {
 
     public Post getPostById(Integer id) {
         return postRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("khong tim thay post"));
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
     }
 
 }

@@ -5,6 +5,8 @@ import com.example.demo.dto.response.ReactionResponse;
 import com.example.demo.entity.Post;
 import com.example.demo.entity.Reaction;
 import com.example.demo.entity.User;
+import com.example.demo.exception.AppException;
+import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.PostRepository;
 import com.example.demo.repository.ReactionRepository;
 import com.example.demo.repository.UserRepository;
@@ -40,10 +42,10 @@ public class ReactionService {
     // User like 1 post
     public Reaction likePost(String username, Integer postId) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
         // Kiểm tra nếu user đã like post rồi thì return luôn reaction cũ
         return reactionRepository.findByPostAndUser(post, user)
@@ -59,10 +61,10 @@ public class ReactionService {
     // User bỏ like
     public void unlikePost(String username, Integer postId) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
         reactionRepository.findByPostAndUser(post, user)
                 .ifPresent(reactionRepository::delete);
@@ -71,6 +73,8 @@ public class ReactionService {
 
     // Lấy danh sách like của 1 post
     public ReactionPageResponse getReactionsByPost(Integer postId, int page, int size) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
 
         Page<Reaction> reactionPage = reactionRepository.findByPost_Id(postId, pageable);
@@ -98,17 +102,17 @@ public class ReactionService {
     // Đếm số lượng like
     public Long countLikes(Integer postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
         return reactionRepository.countByPost(post);
     }
 
     // Kiểm tra user có like post chưa
     public boolean hasUserLiked(String username, Integer postId) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
         return reactionRepository.findByPostAndUser(post, user).isPresent();
     }
 }
