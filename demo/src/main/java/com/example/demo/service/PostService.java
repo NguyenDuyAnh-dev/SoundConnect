@@ -259,6 +259,7 @@ public class PostService {
         return PostPageResponse.builder()
                 .id(post.getId())
                 .author(post.getAuthor().getUsername())
+                .userId(post.getAuthor().getId())
                 .content(post.getContent())
                 .location(post.getLocation())
                 .media(post.getMedia())
@@ -275,7 +276,8 @@ public class PostService {
 
         return postPage.map(post -> PostPageResponse.builder()
                 .id(post.getId())
-                .author(post.getAuthor().getUsername()) // hoặc tên hiển thị
+                .author(post.getAuthor().getFirstname() + post.getAuthor().getLastname()) // hoặc tên hiển thị
+                .userId(post.getAuthor().getId())
                 .content(post.getContent())
                 .location(post.getLocation())
                 .media(post.getMedia())
@@ -293,7 +295,8 @@ public class PostService {
 
         return postPage.map(post -> PostPageResponse.builder()
                 .id(post.getId())
-                .author(post.getAuthor().getUsername()) // hoặc tên hiển thị
+                .author(post.getAuthor().getFirstname() + post.getAuthor().getLastname()) // hoặc tên hiển thị
+                .userId(post.getAuthor().getId())
                 .content(post.getContent())
                 .location(post.getLocation())
                 .media(post.getMedia())
