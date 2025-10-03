@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.response.SalePostResponse;
 import com.example.demo.entity.SalePost;
 import com.example.demo.service.SalePostService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -23,15 +24,14 @@ public class SalePostController {
     SalePostService salePostService;
 
     @GetMapping
-    public ResponseEntity getAllSalePosts() {
-        return ResponseEntity.ok(salePostService.getAllSalePosts());
+    public ResponseEntity getAllSalePosts(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(salePostService.getAllSalePosts(page, size));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity getSalePostById(@PathVariable Integer id) {
-        return salePostService.getSalePostById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        SalePostResponse salePostResponse = salePostService.getSalePostById(id);
+        return ResponseEntity.ok(salePostResponse);
     }
 
     @PostMapping

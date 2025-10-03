@@ -65,8 +65,5 @@ public class User {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     List<SalePost> salePosts;
 
-    @OneToMany(mappedBy = "buyer")
-    @JsonIgnore
-    List<Order> orders;
 
 }

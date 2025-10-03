@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.request.CategoryRequest;
+import com.example.demo.dto.request.CategoryUpdateRequest;
 import com.example.demo.dto.response.CategoryResponse;
 import com.example.demo.entity.Category;
 import com.example.demo.service.CategoryService;
@@ -35,18 +37,24 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity createCategory(@RequestBody Category category) {
+    public ResponseEntity createCategory(@RequestBody CategoryRequest category) {
         return ResponseEntity.ok(categoryService.createCategory(category));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity updateCategory(@PathVariable Integer id, @RequestBody Category categoryDetails) {
+    public ResponseEntity updateCategory(@PathVariable Integer id, @RequestBody CategoryUpdateRequest categoryDetails) {
         return ResponseEntity.ok(categoryService.updateCategory(id, categoryDetails));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteCategory(@PathVariable Integer id) {
-        categoryService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
+        boolean result = categoryService.deleteCategory(id);
+        String resultString = "";
+        if(result){
+            resultString = "Deleted successfully";
+        }else{
+            resultString= "Deleted Error";
+        }
+        return ResponseEntity.ok(resultString);
     }
 }

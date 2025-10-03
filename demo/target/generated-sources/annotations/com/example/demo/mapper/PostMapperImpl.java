@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-09-26T12:11:33+0700",
+    date = "2025-10-03T13:47:24+0700",
     comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.8 (Microsoft)"
 )
 @Component
@@ -31,6 +31,9 @@ public class PostMapperImpl implements PostMapper {
         postResponse.content( post.getContent() );
         postResponse.location( post.getLocation() );
         postResponse.media( post.getMedia() );
+        postResponse.visibility( post.getVisibility() );
+        postResponse.postType( post.getPostType() );
+        postResponse.status( post.getStatus() );
 
         postResponse.comment( post.getCommentList().size() );
         postResponse.reaction( post.getReactions().size() );

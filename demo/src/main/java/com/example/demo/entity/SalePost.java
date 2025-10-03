@@ -35,8 +35,6 @@ public class SalePost {
 
     Status status;
 
-    Boolean isActive;
-
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 

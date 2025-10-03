@@ -49,7 +49,8 @@ public class SecurityConfig {
         httpSecurity
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("*")); // FE chạy port nào thì add vào VD: http://localhost:5173 con cho all thi *
+//                    corsConfig.setAllowedOrigins(List.of("*")); // FE chạy port nào thì add vào VD: http://localhost:5173
+                    corsConfig.addAllowedOriginPattern("*"); // 👈 cho tất cả domain
                     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("*"));
                     corsConfig.setAllowCredentials(true);
