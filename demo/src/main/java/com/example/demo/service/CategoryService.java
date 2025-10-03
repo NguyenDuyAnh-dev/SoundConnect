@@ -1,6 +1,11 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.response.CategoryGetAllResponse;
+import com.example.demo.dto.response.CategoryResponse;
 import com.example.demo.entity.Category;
+import com.example.demo.exception.AppException;
+import com.example.demo.exception.ErrorCode;
+import com.example.demo.mapper.CategoryMapper;
 import com.example.demo.repository.CategoryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +25,22 @@ public class CategoryService {
     @Autowired
     CategoryRepository categoryRepository;
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    @Autowired
+    CategoryMapper categoryMapper;
+
+    public List<CategoryGetAllResponse> getAllCategories() {
+        List<Category> categories = categoryRepository.findAll();
+        List<CategoryGetAllResponse> response = categoryMapper.toCategoryGetAllResponse(categories);
+        return response;
     }
 
-    public Optional<Category> getCategoryById(Integer id) {
-        return categoryRepository.findById(id);
+    public CategoryResponse getCategoryById(Integer id) {
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+        CategoryResponse categoryResponse = categoryMapper.toCategoryResponse(category);
+        return categoryResponse;
     }
+
+    // lay category bang id co phan trang salepoost (chua lam)
 
     public Category createCategory(Category category) {
         if (categoryRepository.existsByName(category.getName())) {

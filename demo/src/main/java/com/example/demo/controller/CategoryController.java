@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.response.CategoryResponse;
 import com.example.demo.entity.Category;
 import com.example.demo.service.CategoryService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -29,9 +30,8 @@ public class CategoryController {
 
     @GetMapping("/{id}")
     public ResponseEntity getCategoryById(@PathVariable Integer id) {
-        return categoryService.getCategoryById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        CategoryResponse categoryResponse = categoryService.getCategoryById(id);
+        return ResponseEntity.ok(categoryResponse);
     }
 
     @PostMapping
