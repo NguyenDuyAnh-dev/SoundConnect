@@ -24,12 +24,19 @@ public class SecurityConfig {
             "/auth/introspect",
             "/auth/logout",
             "/auth/refresh",
-
     };
+
     private static final String[] SWAGGER_ENDPOINTS = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+    };
+
+    // endpoint WebSocket STOMP
+    private static final String[] WEBSOCKET_ENDPOINTS = {
+            "/gs-guide-websocket/**",   // endpoint thật bạn đã cấu hình
+            "/ws/**",                   // nếu bạn còn dùng alias /ws
+            "/identity/ws/**"
     };
 
     @Value("${jwt.signerKey}")
@@ -37,26 +44,26 @@ public class SecurityConfig {
 
     private final CustomJwtDecoder customJwtDecoder;
 
-
     public SecurityConfig(CustomJwtDecoder customJwtDecoder) {
         this.customJwtDecoder = customJwtDecoder;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request
-                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
-                .permitAll()
-                .requestMatchers(HttpMethod.GET, SWAGGER_ENDPOINTS)
-                .permitAll()
-                .anyRequest()
-                .authenticated());
-
-        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
-                        .decoder(customJwtDecoder)
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                .authenticationEntryPoint(new JwtAuthenticationEntrypoint()));
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+        httpSecurity
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, SWAGGER_ENDPOINTS).permitAll()
+                        .requestMatchers(WEBSOCKET_ENDPOINTS).permitAll() // cho phép connect WS
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwtConfigurer -> jwtConfigurer
+                                .decoder(customJwtDecoder)
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        .authenticationEntryPoint(new JwtAuthenticationEntrypoint())
+                )
+                .csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
     }
