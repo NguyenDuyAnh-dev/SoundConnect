@@ -1,5 +1,8 @@
 package com.example.demo.entity;
 
+import com.example.demo.enums.PostType;
+import com.example.demo.enums.Status;
+import com.example.demo.enums.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,11 +30,18 @@ public class Post {
     @JoinColumn(name = "author_id", nullable = false)
     User author;
 
+    Visibility visibility;
+
+    PostType postType;
+
+
+
     String content;
     String location;
     String media;
 
-    Boolean available;
+//    Boolean available;
+    Status status;
 
     LocalDateTime postTime;
 

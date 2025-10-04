@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.entity.Post;
+import com.example.demo.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,8 +17,21 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     List<Post> findByContentContainingIgnoreCase(String keyword);
 
-    Page<Post> findByAuthor_UsernameOrderByPostTimeDesc(String username, Pageable pageable);
+//    Page<Post> findByAuthor_UsernameAndAvailableTrueOrderByPostTimeDesc(String username, Pageable pageable);
+//
+//    Page<Post> findByContentContainingIgnoreCaseAndAvailableTrue(String keyword, Pageable pageable);
+//
+//    Page<Post> findByAvailableTrue(Pageable pageable);
 
-    Page<Post> findByContentContainingIgnoreCase(String keyword, Pageable pageable);
+    // Lấy post của user
+    Page<Post> findByAuthor_UsernameAndStatusOrderByPostTimeDesc(
+            String username, Status status, Pageable pageable);
+
+    // Search content
+    Page<Post> findByContentContainingIgnoreCaseAndStatus(
+            String keyword, Status status, Pageable pageable);
+
+    // Lấy tất cả post active
+    Page<Post> findByStatus(Status status, Pageable pageable);
 
 }

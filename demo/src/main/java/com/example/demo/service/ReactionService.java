@@ -5,6 +5,7 @@ import com.example.demo.dto.response.ReactionResponse;
 import com.example.demo.entity.Post;
 import com.example.demo.entity.Reaction;
 import com.example.demo.entity.User;
+import com.example.demo.enums.Status;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.PostRepository;
@@ -30,6 +31,7 @@ import java.util.List;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ReactionService {
+
     @Autowired
     ReactionRepository reactionRepository;
 
@@ -39,6 +41,9 @@ public class ReactionService {
     @Autowired
     PostRepository postRepository;
 
+    @Autowired
+    NotificationService notificationService;
+
     // User like 1 post
     public Reaction likePost(String username, Integer postId) {
         User user = userRepository.findByUsername(username)
@@ -47,37 +52,74 @@ public class ReactionService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
-        // Kiểm tra nếu user đã like post rồi thì return luôn reaction cũ
-        return reactionRepository.findByPostAndUser(post, user)
+        Reaction reaction = reactionRepository.findByPostAndUser(post, user)
+                .map(existingReaction -> {
+                    if (existingReaction.getStatus() != Status.ACTIVE) {
+                        existingReaction.setStatus(Status.ACTIVE);
+                        existingReaction.setCreatedAt(LocalDateTime.now());
+                        return reactionRepository.save(existingReaction);
+                    }
+                    return existingReaction;
+                })
                 .orElseGet(() -> {
                     Reaction like = new Reaction();
                     like.setPost(post);
                     like.setUser(user);
+                    like.setStatus(Status.ACTIVE);
+                    like.setType("LIKE");
                     like.setCreatedAt(LocalDateTime.now());
                     return reactionRepository.save(like);
                 });
+
+        // Broadcast reaction mới
+        ReactionResponse dto = ReactionResponse.builder()
+                .id(reaction.getId())
+                .userId(user.getId())
+                .username(user.getUsername())
+                .avatar(user.getAvatar())
+                .type(reaction.getType())
+                .createdAt(reaction.getCreatedAt())
+                .build();
+
+        notificationService.broadcastNewReaction(postId, dto);
+        return reaction;
     }
 
-    // User bỏ like
-    public void unlikePost(String username, Integer postId) {
+    // User bỏ like (soft delete)
+    public boolean unlikePost(String username, Integer postId) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
-        reactionRepository.findByPostAndUser(post, user)
-                .ifPresent(reactionRepository::delete);
+        return reactionRepository.findByPostAndUser(post, user).map(reaction -> {
+            reaction.setStatus(Status.INACTIVE);
+            Reaction saved = reactionRepository.save(reaction);
+
+            // Broadcast reaction bị xóa
+            ReactionResponse dto = ReactionResponse.builder()
+                    .id(saved.getId())
+                    .userId(user.getId())
+                    .username(user.getUsername())
+                    .avatar(user.getAvatar())
+                    .type(saved.getType())
+                    .createdAt(saved.getCreatedAt())
+                    .build();
+
+            notificationService.broadcastDeletedReaction(postId, dto);
+            return true;
+        }).orElse(false);
     }
 
-
-    // Lấy danh sách like của 1 post
+    // Lấy danh sách reaction (chỉ ACTIVE)
     public ReactionPageResponse getReactionsByPost(Integer postId, int page, int size) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
+
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
 
-        Page<Reaction> reactionPage = reactionRepository.findByPost_Id(postId, pageable);
+        Page<Reaction> reactionPage = reactionRepository.findByPost_IdAndStatus(postId, Status.ACTIVE, pageable);
 
         List<ReactionResponse> reactionResponses = reactionPage.getContent().stream()
                 .map(r -> ReactionResponse.builder()
@@ -98,21 +140,24 @@ public class ReactionService {
                 .build();
     }
 
-
-    // Đếm số lượng like
+    // Đếm số lượng like (chỉ ACTIVE)
     public Long countLikes(Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
-        return reactionRepository.countByPost(post);
+        return reactionRepository.countByPostAndStatus(post, Status.ACTIVE);
     }
 
-    // Kiểm tra user có like post chưa
+    // Kiểm tra user có like post chưa (chỉ tính ACTIVE)
     public boolean hasUserLiked(String username, Integer postId) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
-        return reactionRepository.findByPostAndUser(post, user).isPresent();
+
+        return reactionRepository.findByPostAndUser(post, user)
+                .filter(r -> r.getStatus() == Status.ACTIVE)
+                .isPresent();
     }
 }
+

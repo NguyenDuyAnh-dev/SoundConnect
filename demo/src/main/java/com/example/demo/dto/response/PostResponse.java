@@ -1,6 +1,9 @@
 package com.example.demo.dto.response;
 
 
+import com.example.demo.enums.PostType;
+import com.example.demo.enums.Status;
+import com.example.demo.enums.Visibility;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,6 +25,8 @@ public class PostResponse {
     int comment;   // số lượng comment
     String media;
     int reaction;  // số lượng reaction
-
+    Visibility visibility;
+    PostType postType;
+    Status status;
 }
 
