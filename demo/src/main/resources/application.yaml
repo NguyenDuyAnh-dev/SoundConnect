@@ -31,6 +31,12 @@ jwt:
     valid-duration: 3600 #second
     refresh-duration: 30
 
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.springframework.transaction: TRACE
+
 
 
 

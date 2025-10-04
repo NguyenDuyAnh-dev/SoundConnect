@@ -53,6 +53,7 @@ public class User {
         @ManyToMany()
      Set<Role> roles;
 
+// --- Mối quan hệ với các Entity khác trong hệ thống Chat ---
     // Quan hệ
     @OneToMany(mappedBy = "author")
     @JsonIgnore
@@ -66,4 +67,21 @@ public class User {
     List<SalePost> salePosts;
 
 
+    /**
+     * Các phòng chat mà người dùng này tham gia.
+     * `mappedBy = "participants"` chỉ ra rằng mối quan hệ này được quản lý bởi
+     * trường `participants` trong entity `ChatRoom`.
+     */
+    @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude // Tránh vòng lặp vô hạn khi dùng equals/hashCode
+    @ToString.Exclude // Tránh vòng lặp vô hạn khi dùng toString
+    private Set<ChatRoom> chatRooms;
+
+    /**
+     * Các tin nhắn mà người dùng này đã gửi.
+     */
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<Message> sentMessages;
 }

@@ -4,7 +4,6 @@ import com.example.demo.dto.request.SalePostCreateRequest;
 import com.example.demo.dto.request.SalePostUpdateRequest;
 import com.example.demo.dto.response.SaleImageResponse;
 import com.example.demo.dto.response.SalePostForCategoryResponse;
-import com.example.demo.dto.response.SalePostResponse;
 import com.example.demo.entity.SaleImage;
 import com.example.demo.entity.SalePost;
 import org.mapstruct.Mapper;

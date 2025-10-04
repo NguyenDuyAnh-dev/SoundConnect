@@ -26,7 +26,7 @@ public class SaleImageController {
     @Autowired
     SaleImageService saleImageService;
 
-    @PostMapping("/{postId}/images")
+    @PostMapping(value = "/{postId}/images", consumes = {"multipart/form-data", "application/json"})
     public ResponseEntity<SaleImageResponse> uploadImage(
             @PathVariable Integer postId,
             @RequestParam("file") MultipartFile file,

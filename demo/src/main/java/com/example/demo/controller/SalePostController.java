@@ -62,8 +62,8 @@ public class SalePostController {
 
     /** Tạo mới post */
     @PostMapping
-    public ResponseEntity createPost(@RequestBody SalePostCreateRequest salePost) {
-        return ResponseEntity.ok(salePostService.createSalePost(salePost));
+    public ResponseEntity createPost(@RequestParam String username, @RequestBody SalePostCreateRequest salePost) {
+        return ResponseEntity.ok(salePostService.createSalePost(username, salePost));
     }
 
     /** Update post */

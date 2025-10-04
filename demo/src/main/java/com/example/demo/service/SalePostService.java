@@ -161,7 +161,7 @@ public class SalePostService {
     }
 
     /** Tạo bài đăng mới */
-    public SalePostResponse createSalePost(SalePostCreateRequest request) {
+    public SalePostResponse createSalePost(String username, SalePostCreateRequest request) {
 
         // Set Category
         Category category = categoryRepository.findById(request.getCategoryId())
@@ -169,7 +169,7 @@ public class SalePostService {
 
 
         // Set Author
-        User author = userRepository.findByUsername(request.getUsername())
+        User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
 

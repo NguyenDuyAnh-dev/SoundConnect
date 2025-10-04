@@ -13,6 +13,4 @@ public interface SaleImageRepository extends JpaRepository<SaleImage, Integer> {
 
     // Lấy ảnh đại diện của 1 SalePost
     SaleImage findBySalePost_IdAndIsPrimaryTrue(Integer salePostId);
-
-    List<SaleImage> findBySalePostId(Integer salePostId);
 }

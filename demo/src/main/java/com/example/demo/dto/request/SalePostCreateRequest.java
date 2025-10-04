@@ -11,5 +11,4 @@ public class SalePostCreateRequest {
     private String location;
     private Double commissionRate;
     private Integer categoryId;   // FE chỉ gửi ID category
-    private String username;      // FE chỉ gửi Username
 }
