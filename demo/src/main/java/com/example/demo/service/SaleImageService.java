@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,10 +26,16 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SaleImageService {
 
+    @Autowired
     SaleImageRepository saleImageRepository;
+    @Autowired
     SalePostRepository salePostRepository;
+    @Autowired
     SalePostMapper salePostMapper;
+    @Autowired
     CloudinaryService cloudinaryService;
+    @Autowired
+    NotificationService notificationService;
 
     /**  Upload ảnh mới cho bài đăng */
     public SaleImageResponse uploadImageToPost(Integer salePostId, MultipartFile file, boolean isPrimary) throws IOException {
@@ -60,7 +67,12 @@ public class SaleImageService {
 
         saleImageRepository.save(saleImage);
 
-        return salePostMapper.toSaleImageResponse(saleImage);
+        SaleImageResponse response = salePostMapper.toSaleImageResponse(saleImage);
+
+//Bắn realtime thông báo ảnh mới
+        notificationService.sendNewSaleImage(salePost.getId(), response);
+
+        return response;
     }
 
     /**  Lấy danh sách ảnh của một bài đăng */
@@ -87,6 +99,8 @@ public class SaleImageService {
         }
         saleImageRepository.saveAll(images);
 
+        notificationService.sendUpdatedSaleImage(salePost.getId(), salePostMapper.toSaleImageResponse(targetImage));
+
         return salePostMapper.toSaleImageResponse(targetImage);
     }
 
@@ -109,6 +123,8 @@ public class SaleImageService {
                 saleImageRepository.save(newPrimary);
             }
         }
+
+        notificationService.sendDeletedSaleImage(salePost.getId(), imageId);
 
         return true;
     }

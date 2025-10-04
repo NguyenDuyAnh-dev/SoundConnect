@@ -37,6 +37,9 @@ public class SalePostService {
     SalePostMapper salePostMapper;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    NotificationService notificationService;
+
 
     /** Lấy tất cả bài đăng (ACTIVE) có phân trang */
     public SalePostPageResponse getAllSalePosts(int page, int size) {
@@ -203,6 +206,8 @@ public class SalePostService {
         salePostResponse.setStatus(Status.ACTIVE);
         salePostResponse.setCreatedAt(LocalDateTime.now());
         salePostResponse.setUpdatedAt(LocalDateTime.now());
+
+        notificationService.sendNewSalePost(salePostResponse);
         return  salePostResponse;
     }
 
@@ -241,6 +246,9 @@ public class SalePostService {
         salePostResponse.setStatus(Status.ACTIVE);
         salePostResponse.setCreatedAt(LocalDateTime.now());
         salePostResponse.setUpdatedAt(LocalDateTime.now());
+
+        notificationService.sendUpdatedSalePost(salePostResponse);
+
         return salePostResponse;
     }
 
@@ -255,6 +263,7 @@ public class SalePostService {
         salePost.setStatus(Status.INACTIVE);
         salePostRepository.save(salePost);
         result = true;
+        notificationService.sendDeletedSalePost(id);
         return result;
     }
 }
