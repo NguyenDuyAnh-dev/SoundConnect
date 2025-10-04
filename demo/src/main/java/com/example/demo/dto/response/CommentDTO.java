@@ -2,6 +2,7 @@ package com.example.demo.dto.response;
 
 
 import com.example.demo.entity.Post;
+import com.example.demo.enums.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,4 +20,5 @@ public class CommentDTO {
     String content;
     LocalDateTime commentTime;
     Post post;
+    Status status;
 }

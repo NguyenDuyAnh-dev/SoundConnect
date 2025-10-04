@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.enums.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -53,6 +54,18 @@ public class User {
      Set<Role> roles;
 
 // --- Mối quan hệ với các Entity khác trong hệ thống Chat ---
+    // Quan hệ
+    @OneToMany(mappedBy = "author")
+    @JsonIgnore
+    List<Post> posts;
+
+    @OneToMany(mappedBy = "author")
+    @JsonIgnore
+    List<Comment> comments;
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    List<SalePost> salePosts;
+
 
     /**
      * Các phòng chat mà người dùng này tham gia.
