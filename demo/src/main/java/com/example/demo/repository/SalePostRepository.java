@@ -20,6 +20,6 @@ public interface SalePostRepository extends JpaRepository<SalePost, Integer> {
     // Lấy danh sách theo status
     List<SalePost> findByStatus(Enum status);
 
-    Page<SalePost> findByCategory_Id(Integer categoryId, Pageable pageable);
+    Page<SalePost> findByStatusAndCategory_Id(Status status, Integer categoryId, Pageable pageable);
     Page<SalePost> findByStatus(Status status, Pageable pageable);
 }
