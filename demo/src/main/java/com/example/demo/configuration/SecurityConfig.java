@@ -26,19 +26,25 @@ public class SecurityConfig {
             "/auth/introspect",
             "/auth/logout",
             "/auth/refresh",
-
     };
+
     private static final String[] SWAGGER_ENDPOINTS = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+    };
+
+    // endpoint WebSocket STOMP
+    private static final String[] WEBSOCKET_ENDPOINTS = {
+            "/gs-guide-websocket/**",   // endpoint thật bạn đã cấu hình
+            "/ws/**",                   // nếu bạn còn dùng alias /ws
+            "/identity/ws/**"
     };
 
     @Value("${jwt.signerKey}")
     protected String signedKey;
 
     private final CustomJwtDecoder customJwtDecoder;
-
 
     public SecurityConfig(CustomJwtDecoder customJwtDecoder) {
         this.customJwtDecoder = customJwtDecoder;
@@ -62,6 +68,7 @@ public class SecurityConfig {
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, SWAGGER_ENDPOINTS)
                 .permitAll()
+                .requestMatchers(WEBSOCKET_ENDPOINTS).permitAll() // cho phép connect WS
                 .anyRequest()
                 .authenticated());
 
