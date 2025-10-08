@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-04T20:15:17+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.8 (Microsoft)"
+    date = "2025-10-08T16:40:34+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.44.0.v20251001-1143, environment: Java 21.0.8 (Eclipse Adoptium)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
@@ -29,11 +29,11 @@ public class UserMapperImpl implements UserMapper {
 
         User.UserBuilder user = User.builder();
 
-        user.username( request.getUsername() );
-        user.password( request.getPassword() );
+        user.dob( request.getDob() );
         user.firstname( request.getFirstname() );
         user.lastname( request.getLastname() );
-        user.dob( request.getDob() );
+        user.password( request.getPassword() );
+        user.username( request.getUsername() );
 
         return user.build();
     }
@@ -46,14 +46,14 @@ public class UserMapperImpl implements UserMapper {
 
         UserResponse.UserResponseBuilder userResponse = UserResponse.builder();
 
-        userResponse.id( user.getId() );
-        userResponse.username( user.getUsername() );
-        userResponse.name( user.getName() );
-        userResponse.hometown( user.getHometown() );
+        userResponse.available( user.getAvailable() );
         userResponse.avatar( user.getAvatar() );
         userResponse.gender( user.getGender() );
-        userResponse.available( user.getAvailable() );
+        userResponse.hometown( user.getHometown() );
+        userResponse.id( user.getId() );
+        userResponse.name( user.getName() );
         userResponse.roles( roleSetToRoleResponseSet( user.getRoles() ) );
+        userResponse.username( user.getUsername() );
 
         return userResponse.build();
     }
@@ -64,10 +64,10 @@ public class UserMapperImpl implements UserMapper {
             return;
         }
 
-        user.setPassword( request.getPassword() );
+        user.setDob( request.getDob() );
         user.setFirstname( request.getFirstname() );
         user.setLastname( request.getLastname() );
-        user.setDob( request.getDob() );
+        user.setPassword( request.getPassword() );
     }
 
     protected PermissionResponse permissionToPermissionResponse(Permission permission) {
@@ -77,8 +77,8 @@ public class UserMapperImpl implements UserMapper {
 
         PermissionResponse.PermissionResponseBuilder permissionResponse = PermissionResponse.builder();
 
-        permissionResponse.name( permission.getName() );
         permissionResponse.description( permission.getDescription() );
+        permissionResponse.name( permission.getName() );
 
         return permissionResponse.build();
     }
@@ -103,8 +103,8 @@ public class UserMapperImpl implements UserMapper {
 
         RoleResponse.RoleResponseBuilder roleResponse = RoleResponse.builder();
 
-        roleResponse.name( role.getName() );
         roleResponse.description( role.getDescription() );
+        roleResponse.name( role.getName() );
         roleResponse.permissions( permissionSetToPermissionResponseSet( role.getPermissions() ) );
 
         return roleResponse.build();

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-04T20:15:17+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.8 (Microsoft)"
+    date = "2025-10-08T16:40:34+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.44.0.v20251001-1143, environment: Java 21.0.8 (Eclipse Adoptium)"
 )
 @Component
 public class CommentMapperImpl implements CommentMapper {
@@ -24,8 +24,8 @@ public class CommentMapperImpl implements CommentMapper {
 
         commentDTO.avatar( commentAuthorAvatar( comment ) );
         commentDTO.authorName( commentAuthorName( comment ) );
-        commentDTO.content( comment.getContent() );
         commentDTO.commentTime( comment.getCommentTime() );
+        commentDTO.content( comment.getContent() );
         commentDTO.post( comment.getPost() );
         commentDTO.status( comment.getStatus() );
 
