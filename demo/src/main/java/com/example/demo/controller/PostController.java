@@ -6,6 +6,7 @@ import com.example.demo.dto.request.PostUpdateRequest;
 import com.example.demo.dto.response.PostPageResponse;
 import com.example.demo.dto.response.PostResponse;
 import com.example.demo.entity.Post;
+import com.example.demo.enums.Visibility;
 import com.example.demo.service.PostService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AccessLevel;
@@ -44,6 +45,48 @@ public class PostController {
             @ModelAttribute PostUpdateRequest postRequest) throws IOException {
 
         return ResponseEntity.ok(postService.updatePost(username, postId, postRequest));
+    }
+
+    // Tạo post cho band
+    @PostMapping(value = "/band/{bandId}", consumes = {"multipart/form-data", "application/json"})
+    public PostResponse createPostForBand(
+            @RequestParam("username") String username,
+            @PathVariable Integer bandId,
+            @ModelAttribute PostRequest postRequest
+    ) {
+        return postService.createPostForBand(username, bandId, postRequest);
+    }
+
+    // Tạo post cho venue
+    @PostMapping(value = "/venue/{venueId}", consumes = {"multipart/form-data", "application/json"})
+    public PostResponse createPostForVenue(
+            @RequestParam("username") String username,
+            @PathVariable Integer venueId,
+            @ModelAttribute PostRequest postRequest
+    ) {
+        return postService.createPostForVenue(username, venueId, postRequest);
+    }
+
+
+    // Lấy post của band (theo visibility)
+    @GetMapping("/band/{bandId}")
+    public Page<PostPageResponse> getPostsByBand(
+            @PathVariable Integer bandId,
+            @RequestParam Visibility visibility, // PRIVATE hoặc PUBLIC
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return postService.getPostsByBand(bandId, visibility, page, size);
+    }
+
+    // Lấy post của venue (luôn public)
+    @GetMapping("/venue/{venueId}")
+    public Page<PostPageResponse> getPostsByVenue(
+            @PathVariable Integer venueId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return postService.getPostsByVenue(venueId, page, size);
     }
 
     @DeleteMapping("/{postId}")

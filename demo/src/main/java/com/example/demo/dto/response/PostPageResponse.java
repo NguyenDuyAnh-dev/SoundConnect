@@ -15,6 +15,10 @@ public class PostPageResponse {
     Integer id;
     String author;
     String userId;
+    String username;
+    String userAvatar;
+    Integer bandId;
+    Integer venueId;
     String content;
     String location;
     String media;
