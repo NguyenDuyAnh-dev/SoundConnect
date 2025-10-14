@@ -24,6 +24,7 @@ public class SecurityConfig {
             "/auth/introspect",
             "/auth/logout",
             "/auth/refresh",
+            "/api/deposits/payos-webhook",
     };
 
     private static final String[] SWAGGER_ENDPOINTS = {
@@ -55,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, SWAGGER_ENDPOINTS).permitAll()
                         .requestMatchers(WEBSOCKET_ENDPOINTS).permitAll() // cho phép connect WS
+                        .requestMatchers("/api/deposits/payos-webhook").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

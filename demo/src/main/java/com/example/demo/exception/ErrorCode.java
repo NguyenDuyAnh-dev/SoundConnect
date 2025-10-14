@@ -15,7 +15,10 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "You not have permission", HttpStatus.FORBIDDEN),
     UNAUTHENTICATED(1009, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNKNOWN_ERROR(9999, "Unknown error", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_DOB(10010, "Date of birth must be at least {min}", HttpStatus.BAD_REQUEST);
+    INVALID_DOB(10010, "Date of birth must be at least {min}", HttpStatus.BAD_REQUEST),
+    POST_NOT_FOUND(10011, "Post not found", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_FUNDS(10012, "Don't have enough money to post", HttpStatus.PAYMENT_REQUIRED),
+    TRANSACTION_NOT_FOUND(10013, "Error in payment process", HttpStatus.FORBIDDEN);
     private int code;
     private String message;
     private HttpStatusCode statuscode;
