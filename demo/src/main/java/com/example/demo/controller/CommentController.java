@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.ApiResponse;
 import com.example.demo.dto.request.CommentRequest;
+import com.example.demo.dto.request.CommentUpdateRequest;
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.response.CommentDTO;
 import com.example.demo.dto.response.CommentResponse;
@@ -40,12 +41,35 @@ public class CommentController {
         return response;
     }
 
+    @PutMapping("/{commentId}")
+    public ResponseEntity<CommentDTO> updateComment(
+            @PathVariable int commentId,
+            @RequestParam String username,
+            @RequestBody CommentUpdateRequest request) {
+        return ResponseEntity.ok(commentService.updateComment(username, commentId, request));
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity deleteComment(
+            @PathVariable int commentId,
+            @RequestParam String username) {
+        boolean result = commentService.deleteComment(username, commentId);
+        String resultString = "";
+        if(result){
+            resultString = "Deleted successfully";
+        }else{
+            resultString= "Deleted Error";
+        }
+        return ResponseEntity.ok(resultString);
+    }
+
+
 
     // =============== GET ALL COMMENTS OF A POST ===============
     @GetMapping("/post/{postId}")
     public ResponseEntity getCommentsByPost(
             @PathVariable Integer postId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(commentService.getCommentsByPostId(postId, page, size));

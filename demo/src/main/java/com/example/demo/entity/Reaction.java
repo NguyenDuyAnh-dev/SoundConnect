@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +31,8 @@ public class Reaction {
 
     // ví dụ: LIKE, DISLIKE
     String type;
+
+    Status status;
 
     LocalDateTime createdAt;
 }

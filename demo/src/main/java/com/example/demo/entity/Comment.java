@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,8 @@ public class Comment {
     Post post;
 
     String content;
+
+    Status status;
 
     LocalDateTime commentTime;
 }

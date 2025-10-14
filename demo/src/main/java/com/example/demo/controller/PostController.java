@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.ApiResponse;
 import com.example.demo.dto.request.PostRequest;
+import com.example.demo.dto.request.PostUpdateRequest;
 import com.example.demo.dto.response.PostPageResponse;
 import com.example.demo.dto.response.PostResponse;
 import com.example.demo.entity.Post;
@@ -36,6 +37,31 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping(value = "/{postId}", consumes = {"multipart/form-data", "application/json"})
+    public ResponseEntity<PostResponse> updatePost(
+            @PathVariable Integer postId,      // Lấy từ URL
+            @RequestParam String username,     // Hoặc lấy từ token
+            @ModelAttribute PostUpdateRequest postRequest) throws IOException {
+
+        return ResponseEntity.ok(postService.updatePost(username, postId, postRequest));
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity deletePost(
+            @PathVariable Integer postId,
+            @RequestParam String username) {
+
+        boolean result = postService.deletePost(username, postId);
+        String resultString = "";
+        if(result){
+            resultString = "Deleted successfully";
+        }else{
+            resultString= "Deleted Error";
+        }
+        return ResponseEntity.ok(resultString);
+    }
+
+
 
     //  Lấy tất cả post của một user
     @GetMapping("/posts/users/{username}")
@@ -55,6 +81,16 @@ public class PostController {
 
         Page<PostPageResponse> result = postService.searchPosts(keyword, page, size);
         return ResponseEntity.ok(result);
+    }
+
+    // API lấy toàn bộ bài viết (có phân trang, sort)
+    @GetMapping
+    public ResponseEntity<Page<PostPageResponse>> getAllPosts(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<PostPageResponse> response = postService.getAllPosts(page, size);
+        return ResponseEntity.ok(response);
     }
 
 

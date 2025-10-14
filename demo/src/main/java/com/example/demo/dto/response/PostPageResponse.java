@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class PostPageResponse {
     Integer id;
     String author;
+    String userId;
     String content;
     String location;
     String media;

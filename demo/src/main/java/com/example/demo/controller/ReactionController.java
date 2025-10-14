@@ -31,16 +31,23 @@ public class ReactionController {
 
     // User bỏ like
     @DeleteMapping("/unlike")
-    public void unlikePost(@RequestParam String username,
+    public ResponseEntity unlikePost(@RequestParam String username,
                            @RequestParam Integer postId) {
-        reactionService.unlikePost(username, postId);
+        boolean result = reactionService.unlikePost(username, postId);
+        String resultString = "";
+        if(result){
+            resultString = "Deleted successfully";
+        }else{
+            resultString= "Deleted Error";
+        }
+        return ResponseEntity.ok(resultString);
     }
 
     // Lấy danh sách reaction (like) của 1 post
     @GetMapping("/list/{postId}")
     public ResponseEntity getReactionsByPost(
             @PathVariable Integer postId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         return ResponseEntity.ok(reactionService.getReactionsByPost(postId, page, size));

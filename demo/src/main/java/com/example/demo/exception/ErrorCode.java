@@ -19,6 +19,11 @@ public enum ErrorCode {
     POST_NOT_FOUND(10011, "Post not found", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_FUNDS(10012, "Don't have enough money to post", HttpStatus.PAYMENT_REQUIRED),
     TRANSACTION_NOT_FOUND(10013, "Error in payment process", HttpStatus.FORBIDDEN);
+//    POST_NOT_EXISTED(1010, "Post not existed",HttpStatus.NOT_FOUND),
+//    COMMENT_NOT_EXISTED(1011, "Comment not existed",HttpStatus.NOT_FOUND),
+//    CATEGORY_NOT_EXISTED(1012, "Categgory not existed",HttpStatus.NOT_FOUND),
+//    CATEGORY_DUPLICATED(1013, "Categgory is duplicated",HttpStatus.BAD_REQUEST),
+//    INVALID_DOB(10010, "Date of birth must be at least {min}", HttpStatus.BAD_REQUEST);
     private int code;
     private String message;
     private HttpStatusCode statuscode;
