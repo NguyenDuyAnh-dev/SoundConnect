@@ -64,7 +64,20 @@ public class User {
     List<Comment> comments;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    @JsonIgnore
     List<SalePost> salePosts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<BandMember> bandMemberships;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<BandJoinRequest> joinRequests;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<Venue> venues;
 
 
     /**
