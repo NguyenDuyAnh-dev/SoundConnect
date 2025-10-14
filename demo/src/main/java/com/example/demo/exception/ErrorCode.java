@@ -15,6 +15,11 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "You not have permission", HttpStatus.FORBIDDEN),
     UNAUTHENTICATED(1009, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNKNOWN_ERROR(9999, "Unknown error", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    INVALID_DOB(10006, "Date of birth must be at least {min}", HttpStatus.BAD_REQUEST),
+    POST_NOT_FOUND(10007, "Post not found", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_FUNDS(10008, "Don't have enough money to post", HttpStatus.PAYMENT_REQUIRED),
+    TRANSACTION_NOT_FOUND(10009, "Error in payment process", HttpStatus.FORBIDDEN);
     POST_NOT_EXISTED(1010, "Post not existed",HttpStatus.NOT_FOUND),
     COMMENT_NOT_EXISTED(1011, "Comment not existed",HttpStatus.NOT_FOUND),
     CATEGORY_NOT_EXISTED(1012, "Categgory not existed",HttpStatus.NOT_FOUND),
@@ -25,6 +30,7 @@ public enum ErrorCode {
     BAND_MEMBER_NOT_EXISTED(1017, "Band member not existed",HttpStatus.NOT_FOUND),
     VENUE_NOT_EXISTED(1018, "Venue not existed",HttpStatus.NOT_FOUND),
     INVALID_DOB(10010, "Date of birth must be at least {min}", HttpStatus.BAD_REQUEST);
+
     private int code;
     private String message;
     private HttpStatusCode statuscode;
