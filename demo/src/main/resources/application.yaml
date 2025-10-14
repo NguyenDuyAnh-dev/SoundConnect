@@ -13,6 +13,9 @@ spring:
       multipart:
         max-file-size: 40MB
         max-request-size: 40MB
+  ai:
+    gemini:
+      api-key: "AIzaSyDyjm1bKKIeGsaqyAta4SwgUlZUTZISqKk"
 
 
 springdoc:

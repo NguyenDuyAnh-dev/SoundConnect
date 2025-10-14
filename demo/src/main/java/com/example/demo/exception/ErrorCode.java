@@ -20,6 +20,10 @@ public enum ErrorCode {
     CATEGORY_NOT_EXISTED(1012, "Categgory not existed",HttpStatus.NOT_FOUND),
     IMAGE_NOT_EXISTED(1013, "Image not existed",HttpStatus.NOT_FOUND),
     CATEGORY_DUPLICATED(1014, "Categgory is duplicated",HttpStatus.BAD_REQUEST),
+    BAND_NOT_EXISTED(1015, "Band not existed",HttpStatus.NOT_FOUND),
+    USER_ALREADY_IN_BAND(1016, "Band already in band",HttpStatus.BAD_REQUEST),
+    BAND_MEMBER_NOT_EXISTED(1017, "Band member not existed",HttpStatus.NOT_FOUND),
+    VENUE_NOT_EXISTED(1018, "Venue not existed",HttpStatus.NOT_FOUND),
     INVALID_DOB(10010, "Date of birth must be at least {min}", HttpStatus.BAD_REQUEST);
     private int code;
     private String message;

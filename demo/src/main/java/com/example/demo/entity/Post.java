@@ -34,6 +34,13 @@ public class Post {
 
     PostType postType;
 
+    @ManyToOne
+    @JoinColumn(name = "band_id")
+    Band band;
+
+    @ManyToOne
+    @JoinColumn(name = "venue_id")
+    Venue venue;
 
 
     String content;
