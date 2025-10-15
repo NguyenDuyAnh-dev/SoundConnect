@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.ApiResponse;
+import com.example.demo.dto.request.PostNoFileRequest;
 import com.example.demo.dto.request.PostRequest;
 import com.example.demo.dto.request.PostUpdateRequest;
 import com.example.demo.dto.response.PostPageResponse;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,43 +31,101 @@ import java.io.IOException;
 public class PostController {
     PostService postService;
 
-    //  Tạo post mới
-    @PostMapping(consumes = {"multipart/form-data", "application/json"})
-    public ResponseEntity<PostResponse> createPost(
+    @PostMapping(value = "/noFile", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PostResponse> createPostJson(
             @RequestParam String username,
-            @ModelAttribute PostRequest postRequest) throws IOException {
-        PostResponse response = postService.createPost(username, postRequest);
-        return ResponseEntity.ok(response);
+            @RequestBody PostNoFileRequest postNoFileRequest) throws IOException {
+
+        PostRequest postRequest = new PostRequest();
+        postRequest.setContent(postNoFileRequest.getContent());
+        postRequest.setLocation(postNoFileRequest.getLocation());
+        postRequest.setVisibility(postNoFileRequest.getVisibility());
+        postRequest.setPostType(postNoFileRequest.getPostType());
+        // file để null
+        return ResponseEntity.ok(postService.createPost(username, postRequest));
     }
 
-    @PutMapping(value = "/{postId}", consumes = {"multipart/form-data", "application/json"})
-    public ResponseEntity<PostResponse> updatePost(
-            @PathVariable Integer postId,      // Lấy từ URL
-            @RequestParam String username,     // Hoặc lấy từ token
+    @PostMapping(value = "/withFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostResponse> createPostMultipart(
+            @RequestParam String username,
+            @ModelAttribute PostRequest postRequest) throws IOException {
+
+        // file được bind bình thường
+        return ResponseEntity.ok(postService.createPost(username, postRequest));
+    }
+
+    @PutMapping(value = "/noFile/{postId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PostResponse> updatePostJson(
+            @PathVariable Integer postId,
+            @RequestParam String username,
+            @RequestBody PostNoFileRequest postUpdateNoFileRequest) throws IOException {
+
+        PostUpdateRequest postRequest = new PostUpdateRequest();
+        postRequest.setContent(postUpdateNoFileRequest.getContent());
+        postRequest.setLocation(postUpdateNoFileRequest.getLocation());
+        postRequest.setVisibility(postUpdateNoFileRequest.getVisibility());
+        postRequest.setPostType(postUpdateNoFileRequest.getPostType());
+        // file = null
+        return ResponseEntity.ok(postService.updatePost(username, postId, postRequest));
+    }
+
+    @PutMapping(value = "/WithFile/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostResponse> updatePostMultipart(
+            @PathVariable Integer postId,
+            @RequestParam String username,
             @ModelAttribute PostUpdateRequest postRequest) throws IOException {
 
         return ResponseEntity.ok(postService.updatePost(username, postId, postRequest));
     }
 
-    // Tạo post cho band
-    @PostMapping(value = "/band/{bandId}", consumes = {"multipart/form-data", "application/json"})
-    public PostResponse createPostForBand(
+    @PostMapping(value = "/band/noFile/{bandId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PostResponse createPostForBandJson(
             @RequestParam("username") String username,
             @PathVariable Integer bandId,
-            @ModelAttribute PostRequest postRequest
-    ) {
+            @RequestBody PostNoFileRequest postNoFileRequest) {
+
+        PostRequest postRequest = new PostRequest();
+        postRequest.setContent(postNoFileRequest.getContent());
+        postRequest.setLocation(postNoFileRequest.getLocation());
+        postRequest.setVisibility(postNoFileRequest.getVisibility());
+        postRequest.setPostType(postNoFileRequest.getPostType());
+        // file = null
         return postService.createPostForBand(username, bandId, postRequest);
     }
 
-    // Tạo post cho venue
-    @PostMapping(value = "/venue/{venueId}", consumes = {"multipart/form-data", "application/json"})
-    public PostResponse createPostForVenue(
+    @PostMapping(value = "/band/withFile/{bandId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public PostResponse createPostForBandMultipart(
+            @RequestParam("username") String username,
+            @PathVariable Integer bandId,
+            @ModelAttribute PostRequest postRequest) {
+
+        return postService.createPostForBand(username, bandId, postRequest);
+    }
+
+    @PostMapping(value = "/venue/noFile/{venueId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PostResponse createPostForVenueJson(
             @RequestParam("username") String username,
             @PathVariable Integer venueId,
-            @ModelAttribute PostRequest postRequest
-    ) {
+            @RequestBody PostNoFileRequest postNoFileRequest) {
+
+        PostRequest postRequest = new PostRequest();
+        postRequest.setContent(postNoFileRequest.getContent());
+        postRequest.setLocation(postNoFileRequest.getLocation());
+        postRequest.setVisibility(postNoFileRequest.getVisibility());
+        postRequest.setPostType(postNoFileRequest.getPostType());
+        // file = null
         return postService.createPostForVenue(username, venueId, postRequest);
     }
+
+    @PostMapping(value = "/venue/withFile/{venueId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public PostResponse createPostForVenueMultipart(
+            @RequestParam("username") String username,
+            @PathVariable Integer venueId,
+            @ModelAttribute PostRequest postRequest) {
+
+        return postService.createPostForVenue(username, venueId, postRequest);
+    }
+
 
 
     // Lấy post của band (theo visibility)
