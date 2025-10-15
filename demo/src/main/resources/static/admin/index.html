@@ -24,6 +24,9 @@
       document.getElementById('users_banned').innerText = s.users_banned ?? '-';
       document.getElementById('posts_total').innerText = s.posts_total ?? '-';
       document.getElementById('comments_total').innerText = s.comments_total ?? '-';
+      document.getElementById('sale_posts_total').innerText = s.sale_posts_total ?? '-';
+      document.getElementById('sale_posts_active').innerText = s.sale_posts_active ?? '-';
+      document.getElementById('total_revenue').innerText = s.total_revenue ? s.total_revenue.toLocaleString('vi-VN') + ' VNĐ' : '-';
     }
     window.addEventListener('DOMContentLoaded', loadStats);
   </script>
@@ -36,6 +39,9 @@
      <div class="card">Users banned: <b id="users_banned">...</b></div>
      <div class="card">Posts total: <b id="posts_total">...</b></div>
      <div class="card">Comments total: <b id="comments_total">...</b></div>
+     <div class="card">Sale Posts total: <b id="sale_posts_total">...</b></div>
+     <div class="card">Sale Posts active: <b id="sale_posts_active">...</b></div>
+     <div class="card">Total Revenue: <b id="total_revenue">...</b></div>
    </div>
    <p>API base is <code>/identity</code>. Save JWT as <code>localStorage.token</code> to authorize.</p>
  </body>
