@@ -59,8 +59,18 @@ public class PostService {
     @Autowired
     NotificationService notificationService;
 
+    @Autowired
+    AIService aiService;
+
     // Tạo post mới
     public PostResponse createPost(String username, PostRequest postRequest) {
+        System.out.println("Bắt đầu kiểm tra nội dung bằng AI...");
+        String content = postRequest.getContent();
+        boolean isValid = aiService.isMusicRelated(content);
+        System.out.println(isValid);
+        if (!isValid) {
+            throw new AppException(ErrorCode.INVALID_CONTENT); // hoặc tạo ErrorCode mới
+        }
         System.out.println("bat dau tim user");
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -128,6 +138,13 @@ public class PostService {
 
     // Post cua band
     public PostResponse createPostForBand(String username, Integer bandId, PostRequest postRequest) {
+        System.out.println("Bắt đầu kiểm tra nội dung bằng AI...");
+        String content = postRequest.getContent();
+        boolean isValid = aiService.isMusicRelated(content);
+        System.out.println(isValid);
+        if (!isValid) {
+            throw new AppException(ErrorCode.INVALID_CONTENT); // hoặc tạo ErrorCode mới
+        }
         System.out.println("Bắt đầu tạo post cho band");
 
         User user = userRepository.findByUsername(username)
@@ -198,6 +215,13 @@ public class PostService {
 
     // post cua venue
     public PostResponse createPostForVenue(String username, Integer venueId, PostRequest postRequest) {
+        System.out.println("Bắt đầu kiểm tra nội dung bằng AI...");
+        String content = postRequest.getContent();
+        boolean isValid = aiService.isMusicRelated(content);
+        System.out.println(isValid);
+        if (!isValid) {
+            throw new AppException(ErrorCode.INVALID_CONTENT); // hoặc tạo ErrorCode mới
+        }
         System.out.println("Bắt đầu tạo post cho venue");
 
         User user = userRepository.findByUsername(username)
@@ -270,6 +294,13 @@ public class PostService {
 
     // Update post
     public PostResponse updatePost(String username, Integer postId, PostUpdateRequest postRequest) {
+        System.out.println("Bắt đầu kiểm tra nội dung bằng AI...");
+        String content = postRequest.getContent();
+        boolean isValid = aiService.isMusicRelated(content);
+        System.out.println(isValid);
+        if (!isValid) {
+            throw new AppException(ErrorCode.INVALID_CONTENT); // hoặc tạo ErrorCode mới
+        }
         // 1. Tìm user
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
