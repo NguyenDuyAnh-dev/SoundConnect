@@ -87,6 +87,26 @@ public class User {
     @JsonIgnore
     List<Venue> venues;
 
+    // --- Follow Bands & Venues ---
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_follow_bands",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "band_id")
+    )
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<Band> followedBands;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_follow_venues",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "venue_id")
+    )
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<Venue> followedVenues;
 
     /**
      * Các phòng chat mà người dùng này tham gia.

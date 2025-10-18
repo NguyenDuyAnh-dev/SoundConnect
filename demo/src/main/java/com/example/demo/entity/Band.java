@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -42,4 +43,9 @@ public class Band {
     @OneToMany(mappedBy = "band", cascade = CascadeType.ALL)
     @JsonIgnore
     List<Post> posts;
+
+    // --- Followed by users ---
+    @ManyToMany(mappedBy = "followedBands", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<User> followers;
 }

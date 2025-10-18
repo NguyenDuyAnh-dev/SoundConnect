@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -37,4 +38,10 @@ public class Venue {
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     User owner;
+
+    // --- Followed by users ---
+    @ManyToMany(mappedBy = "followedVenues", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<User> followers;
+
 }
