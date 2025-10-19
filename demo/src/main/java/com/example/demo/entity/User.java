@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -33,11 +32,6 @@ public class User {
      String lastname;
      LocalDate dob;
      Status status;
-
-    @Builder.Default
-    @Column(precision = 19, scale = 2)
-    private BigDecimal balance = BigDecimal.ZERO;
-
     private String hometown;
     @Lob
     @Basic(fetch = FetchType.LAZY)
@@ -56,8 +50,6 @@ public class User {
     @OneToMany
     private List<Notification> notificationList;
     private Boolean available;
-
-
         @ManyToMany()
      Set<Role> roles;
 
