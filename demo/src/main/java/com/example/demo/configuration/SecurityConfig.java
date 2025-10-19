@@ -26,7 +26,6 @@ public class SecurityConfig {
             "/auth/introspect",
             "/auth/logout",
             "/auth/refresh",
-            "/api/deposits/payos-webhook",
     };
 
     private static final String[] SWAGGER_ENDPOINTS = {
@@ -65,19 +64,19 @@ public class SecurityConfig {
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.GET, SWAGGER_ENDPOINTS).permitAll()
-                        .requestMatchers(WEBSOCKET_ENDPOINTS).permitAll() // cho phép connect WS
-                        .requestMatchers("/api/deposits/payos-webhook").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwtConfigurer -> jwtConfigurer
-                                .decoder(customJwtDecoder)
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                        .authenticationEntryPoint(new JwtAuthenticationEntrypoint())
-                )
-                .csrf(AbstractHttpConfigurer::disable);
+                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, SWAGGER_ENDPOINTS)
+                .permitAll()
+                .requestMatchers(WEBSOCKET_ENDPOINTS).permitAll() // cho phép connect WS
+                .anyRequest()
+                .authenticated());
+
+        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(customJwtDecoder)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                .authenticationEntryPoint(new JwtAuthenticationEntrypoint()));
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
     }
