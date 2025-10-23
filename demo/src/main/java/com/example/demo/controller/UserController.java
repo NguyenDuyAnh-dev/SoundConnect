@@ -5,6 +5,7 @@ import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdateRequest;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
+import com.example.demo.enums.Status;
 import com.example.demo.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -62,6 +63,30 @@ public class UserController {
     ApiResponse<UserResponse> updateUser(@PathVariable String userId,@RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUser(userId, request))
+                .build();
+    }
+
+    // Admin: set status (ACTIVE/INACTIVE/BANNED)
+    @PutMapping("/{userId}/admin/status")
+    ApiResponse<UserResponse> setUserStatus(@PathVariable String userId, @RequestParam Status status) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.setUserStatus(userId, status))
+                .build();
+    }
+
+    // Admin: promote to ADMIN
+    @PutMapping("/{userId}/admin/promote")
+    ApiResponse<UserResponse> promote(@PathVariable String userId) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.promoteToAdmin(userId))
+                .build();
+    }
+
+    // Admin: demote from ADMIN
+    @PutMapping("/{userId}/admin/demote")
+    ApiResponse<UserResponse> demote(@PathVariable String userId) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.demoteFromAdmin(userId))
                 .build();
     }
 
