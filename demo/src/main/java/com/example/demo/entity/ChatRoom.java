@@ -34,11 +34,11 @@ public class ChatRoom {
     )
     private Set<User> participants;
 
-    // ----- PHƯƠNG THỨC QUAN TRỌNG ĐƯỢC THÊM VÀO -----
-    /**
-     * Helper method để đồng bộ cả hai phía của mối quan hệ.
-     * Vừa thêm user vào phòng chat, vừa thêm phòng chat vào cho user.
-     */
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_message_id")
+    private Message lastMessage;
+
+    // Helper method mà ChatService sử dụng
     public void addParticipant(User user) {
         if (this.participants == null) {
             this.participants = new HashSet<>();
