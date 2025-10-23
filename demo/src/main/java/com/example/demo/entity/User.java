@@ -64,8 +64,41 @@ public class User {
     List<Comment> comments;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    @JsonIgnore
     List<SalePost> salePosts;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<BandMember> bandMemberships;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<BandJoinRequest> joinRequests;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<Venue> venues;
+
+    // --- Follow Bands & Venues ---
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_follow_bands",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "band_id")
+    )
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<Band> followedBands;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "user_follow_venues",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "venue_id")
+    )
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<Venue> followedVenues;
 
     /**
      * Các phòng chat mà người dùng này tham gia.

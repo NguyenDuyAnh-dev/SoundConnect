@@ -200,7 +200,28 @@
 
         </dependency>
 
+        <dependency>
+            <groupId>com.google.genai</groupId>
+            <artifactId>google-genai</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api.grpc</groupId>
+            <artifactId>proto-google-cloud-vision-v1</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+
+
+
+
     </dependencies>
+
+
 
     <build>
 
