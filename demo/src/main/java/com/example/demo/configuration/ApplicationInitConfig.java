@@ -6,6 +6,7 @@ import java.util.HashSet;
 import com.example.demo.constant.PredefinedRole;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
+import com.example.demo.enums.Status;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -65,6 +66,7 @@ public class ApplicationInitConfig {
                 User user = User.builder()
                         .username(ADMIN_USER_NAME)
                         .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                        .status(Status.ACTIVE)
                         .roles(roles)
                         .build();
 

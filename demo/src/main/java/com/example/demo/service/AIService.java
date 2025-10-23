@@ -110,7 +110,7 @@ public class AIService {
                 .replace("\n", "\\n")    // escape newline
                 .replace("\r", "\\r");   // escape carriage return
 
-        String prompt = """
+    String prompt = """
         Bạn là hệ thống kiểm duyệt nội dung mạng xã hội về âm nhạc.
         Hãy trả lời chính xác 'true' hoặc 'false', không giải thích thêm.
 
@@ -125,10 +125,10 @@ public class AIService {
         Nội dung: "%s" ->
     """.formatted(jsonEscapedContent);
 
-        String result = callGeminiAPI(prompt).trim().toLowerCase();
+    String result = callGeminiAPI(prompt).trim().toLowerCase();
 
-        // chỉ trả true khi Gemini thực sự trả 'true'
-        return result.startsWith("true");
-    }
+    // chỉ trả true khi Gemini thực sự trả 'true'
+    return result.startsWith("true");
+}
 
 }
