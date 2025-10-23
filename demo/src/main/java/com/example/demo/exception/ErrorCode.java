@@ -15,6 +15,7 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "You not have permission", HttpStatus.FORBIDDEN),
     UNAUTHENTICATED(1009, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNKNOWN_ERROR(9999, "Unknown error", HttpStatus.INTERNAL_SERVER_ERROR),
+    IMAGE_NOT_EXISTED(1013, "Image not existed",HttpStatus.NOT_FOUND),
     INVALID_DOB(10010, "Date of birth must be at least {min}", HttpStatus.BAD_REQUEST),
     POST_NOT_FOUND(10011, "Post not found", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_FUNDS(10012, "Don't have enough money to post", HttpStatus.PAYMENT_REQUIRED),
@@ -22,7 +23,13 @@ public enum ErrorCode {
     POST_NOT_EXISTED(1010, "Post not existed",HttpStatus.NOT_FOUND),
     COMMENT_NOT_EXISTED(1011, "Comment not existed",HttpStatus.NOT_FOUND),
     CATEGORY_NOT_EXISTED(1012, "Categgory not existed",HttpStatus.NOT_FOUND),
-    CATEGORY_DUPLICATED(1013, "Categgory is duplicated",HttpStatus.BAD_REQUEST);
+    CATEGORY_DUPLICATED(1013, "Categgory is duplicated",HttpStatus.BAD_REQUEST),
+    BAND_NOT_EXISTED(1014, "Band is not existed ",HttpStatus.NOT_FOUND),
+    VENUE_NOT_EXISTED(1015, "Venue is not existed ",HttpStatus.NOT_FOUND),
+    USER_ALREADY_IN_BAND(1016, "Band already in band",HttpStatus.BAD_REQUEST),
+    BAND_MEMBER_NOT_EXISTED(1017, "Band member not existed",HttpStatus.NOT_FOUND),
+    INVALID_CONTENT(1019, "The content of the article is not related to the topic of music", HttpStatus.BAD_REQUEST);
+
 
     private int code;
     private String message;

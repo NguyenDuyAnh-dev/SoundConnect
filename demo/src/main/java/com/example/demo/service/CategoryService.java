@@ -32,6 +32,9 @@ public class CategoryService {
     @Autowired
     CategoryMapper categoryMapper;
 
+    @Autowired
+    NotificationService notificationService;
+
     public List<CategoryGetAllResponse> getAllCategories() {
         List<Category> categories = categoryRepository.findByStatus(Status.ACTIVE);
         List<CategoryGetAllResponse> response = categoryMapper.toCategoryGetAllResponse(categories);
@@ -55,6 +58,8 @@ public class CategoryService {
 
         CategoryResponse categoryResponse = categoryMapper.toCategoryResponse(category);
 
+        notificationService.sendNewCategory(categoryResponse);
+
         return categoryResponse;
     }
 
@@ -66,6 +71,9 @@ public class CategoryService {
         categoryMapper.updateCategoryFromRequest(category, categoryUpdateRequest);
         categoryRepository.save(category);
         CategoryResponse categoryResponse = categoryMapper.toCategoryResponse(category);
+
+        notificationService.sendUpdatedCategory(categoryResponse);
+
         return categoryResponse;
     }
 
@@ -77,6 +85,9 @@ public class CategoryService {
         category.setStatus(Status.INACTIVE);
         categoryRepository.save(category);
         result = true;
+
+        notificationService.sendDeletedCategory(id);
+
         return result;
     }
 }
