@@ -18,10 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -137,6 +134,26 @@ public class ChatService {
         newChatRoom.setParticipants(participants);
 
         return chatRoomRepository.save(newChatRoom);
+    }
+
+    public List<ChatRoomResponse> getRoomsForUser(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+        // Lấy danh sách phòng từ entity User và sắp xếp
+        return user.getChatRooms().stream()
+                // Sắp xếp: phòng có tin nhắn cuối cùng mới nhất lên đầu
+                .sorted(Comparator.comparing(
+                        (ChatRoom room) -> {
+                            // Nếu không có tin nhắn cuối, xếp xuống cuối
+                            if (room.getLastMessage() == null) {
+                                return LocalDateTime.MIN;
+                            }
+                            return room.getLastMessage().getTimestamp();
+                        }
+                ).reversed()) // .reversed() để mới nhất lên đầu
+                .map(this::convertToDto) // Chuyển đổi sang DTO
+                .collect(Collectors.toList());
     }
 }
 

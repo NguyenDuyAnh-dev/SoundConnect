@@ -58,6 +58,12 @@ public class ChatController {
 
         return ResponseEntity.ok(savedMessage);
     }
+    @GetMapping("/user/{userId}/rooms")
+    public ResponseEntity<List<ChatRoomResponse>> getUserChatRooms(@PathVariable String userId) {
+        // Bạn sẽ cần tạo phương thức 'getRoomsForUser' trong ChatService
+        List<ChatRoomResponse> rooms = chatService.getRoomsForUser(userId);
+        return ResponseEntity.ok(rooms);
+    }
 }
 
 
