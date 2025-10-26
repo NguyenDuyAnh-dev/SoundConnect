@@ -126,4 +126,21 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
+    public List<UserResponse> searchUsers(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            // Trả về tất cả người dùng
+            List<User> allUsers = userRepository.findAll();
+            return userMapper.toUserResponseList(allUsers); // Chuyển đổi sang DTO
+        }
+
+        // 1. Tìm kiếm Entity từ Repository
+        List<User> foundUsers = userRepository.findByUsernameContainingIgnoreCaseOrNameContainingIgnoreCase(
+                keyword,
+                keyword
+        );
+
+        // 2. Chuyển đổi danh sách Entity thành danh sách DTO bằng UserMapper
+        return userMapper.toUserResponseList(foundUsers);
+    }
+
 }

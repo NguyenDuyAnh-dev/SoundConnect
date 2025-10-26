@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +50,9 @@ public class User {
     private List<User> bedisfavoredList;
     @OneToMany
     private List<Notification> notificationList;
+    @Builder.Default // Quan trọng khi dùng @Builder
+    @Column(precision = 19, scale = 2) // Định nghĩa kiểu dữ liệu trong DB
+    private BigDecimal balance = BigDecimal.ZERO; // Khai báo biến và gán giá trị mặc định
     private Boolean available;
         @ManyToMany()
      Set<Role> roles;

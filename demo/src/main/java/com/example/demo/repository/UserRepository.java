@@ -25,4 +25,5 @@ public interface UserRepository extends JpaRepository<User, String> {
     // Đếm số follower nhanh
     long countByFollowedBands_Id(Integer bandId);
     long countByFollowedVenues_Id(Integer venueId);
+    List<User> findByUsernameContainingIgnoreCaseOrNameContainingIgnoreCase(String username, String name);
 }
