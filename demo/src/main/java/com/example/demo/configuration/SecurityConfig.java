@@ -26,12 +26,15 @@ public class SecurityConfig {
             "/auth/introspect",
             "/auth/logout",
             "/auth/refresh",
+            "/api/deposits/payos-webhook"
     };
 
     private static final String[] SWAGGER_ENDPOINTS = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-ui.html",
+            "/api/deposits/success",
+            "/api/deposits/cancel"
     };
 
     // endpoint WebSocket STOMP
