@@ -545,7 +545,7 @@ public class PostService {
 
     public PagedResponse<PostRecruitingResponse> getRecruitingPostsForBand(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("postTime").descending());
-        Page<Post> posts = postRepository.findByPostTypeAndStatus(PostType.RECRUITING, Status.ACTIVE, pageable);
+        Page<Post> posts = postRepository.findByPostTypeAndStatusAndBandIsNotNull(PostType.RECRUITING, Status.ACTIVE, pageable);
 
 
         List<PostRecruitingResponse> content = posts.stream().map(post -> {
@@ -629,7 +629,7 @@ public class PostService {
 
     public PagedResponse<PostRecruitingVenueResponse> getRecruitingPostsForVenue(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("postTime").descending());
-        Page<Post> posts = postRepository.findByPostTypeAndStatus(PostType.RECRUITING, Status.ACTIVE, pageable);
+        Page<Post> posts = postRepository.findByPostTypeAndStatusAndVenueIsNotNull(PostType.RECRUITING, Status.ACTIVE, pageable);
 
         List<PostRecruitingVenueResponse> content = posts.stream().map(post -> {
             User author = post.getAuthor();

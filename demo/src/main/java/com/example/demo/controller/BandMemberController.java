@@ -50,7 +50,7 @@ public class BandMemberController {
     /**
      *  Lấy tất cả band mà 1 user đang tham gia (phân trang)
      */
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user/{username}")
     public ResponseEntity getBandsOfUser(
             @PathVariable String username,
             @RequestParam(defaultValue = "1") int page,

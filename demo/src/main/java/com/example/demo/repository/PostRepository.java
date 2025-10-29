@@ -45,5 +45,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     Page<Post> findByPostTypeAndStatus(PostType postType, Status status, Pageable pageable);
 
+    Page<Post> findByPostTypeAndStatusAndBandIsNotNull(PostType postType, Status status, Pageable pageable);
+
+    Page<Post> findByPostTypeAndStatusAndVenueIsNotNull(PostType postType, Status status, Pageable pageable);
+
 
 }
