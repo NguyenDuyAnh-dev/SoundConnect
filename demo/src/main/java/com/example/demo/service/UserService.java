@@ -5,6 +5,7 @@ import com.example.demo.dto.request.UserUpdateRequest;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
 import com.example.demo.enums.Status;
+import com.example.demo.constant.PredefinedRole;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.UserMapper;
@@ -95,6 +96,51 @@ public class UserService {
         var roles = roleRepository.findAllById(request.getRoles());
         user.setRoles(new HashSet<>(roles));
         return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse setUserStatus(String userId, Status status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        user.setStatus(status);
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse promoteToAdmin(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        var roles = new HashSet<>(user.getRoles());
+        roleRepository.findById(PredefinedRole.ADMIN_ROLE).ifPresent(roles::add);
+        user.setRoles(roles);
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse demoteFromAdmin(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        var roles = new HashSet<>(user.getRoles());
+        roles.removeIf(r -> PredefinedRole.ADMIN_ROLE.equals(r.getName()));
+        user.setRoles(roles);
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    public List<UserResponse> searchUsers(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            // Trả về tất cả người dùng
+            List<User> allUsers = userRepository.findAll();
+            return userMapper.toUserResponseList(allUsers); // Chuyển đổi sang DTO
+        }
+
+        // 1. Tìm kiếm Entity từ Repository
+        List<User> foundUsers = userRepository.findByUsernameContainingIgnoreCaseOrNameContainingIgnoreCase(
+                keyword,
+                keyword
+        );
+
+        // 2. Chuyển đổi danh sách Entity thành danh sách DTO bằng UserMapper
+        return userMapper.toUserResponseList(foundUsers);
     }
 
 }

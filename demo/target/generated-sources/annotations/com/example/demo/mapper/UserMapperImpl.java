@@ -2,24 +2,28 @@ package com.example.demo.mapper;
 
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdateRequest;
-import com.example.demo.dto.response.PermissionResponse;
 import com.example.demo.dto.response.RoleResponse;
 import com.example.demo.dto.response.UserResponse;
-import com.example.demo.entity.Permission;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.processing.Generated;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-17T10:12:59+0700",
+    date = "2025-10-29T23:17:46+0700",
     comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.8 (Microsoft)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
+
+    @Autowired
+    private RoleMapper roleMapper;
 
     @Override
     public User toUser(UserCreationRequest request) {
@@ -59,55 +63,28 @@ public class UserMapperImpl implements UserMapper {
     }
 
     @Override
+    public List<UserResponse> toUserResponseList(List<User> users) {
+        if ( users == null ) {
+            return null;
+        }
+
+        List<UserResponse> list = new ArrayList<UserResponse>( users.size() );
+        for ( User user : users ) {
+            list.add( toUserResponse( user ) );
+        }
+
+        return list;
+    }
+
+    @Override
     public void updateUser(User user, UserUpdateRequest request) {
         if ( request == null ) {
             return;
         }
 
-        user.setPassword( request.getPassword() );
         user.setFirstname( request.getFirstname() );
         user.setLastname( request.getLastname() );
         user.setDob( request.getDob() );
-    }
-
-    protected PermissionResponse permissionToPermissionResponse(Permission permission) {
-        if ( permission == null ) {
-            return null;
-        }
-
-        PermissionResponse.PermissionResponseBuilder permissionResponse = PermissionResponse.builder();
-
-        permissionResponse.name( permission.getName() );
-        permissionResponse.description( permission.getDescription() );
-
-        return permissionResponse.build();
-    }
-
-    protected Set<PermissionResponse> permissionSetToPermissionResponseSet(Set<Permission> set) {
-        if ( set == null ) {
-            return null;
-        }
-
-        Set<PermissionResponse> set1 = LinkedHashSet.newLinkedHashSet( set.size() );
-        for ( Permission permission : set ) {
-            set1.add( permissionToPermissionResponse( permission ) );
-        }
-
-        return set1;
-    }
-
-    protected RoleResponse roleToRoleResponse(Role role) {
-        if ( role == null ) {
-            return null;
-        }
-
-        RoleResponse.RoleResponseBuilder roleResponse = RoleResponse.builder();
-
-        roleResponse.name( role.getName() );
-        roleResponse.description( role.getDescription() );
-        roleResponse.permissions( permissionSetToPermissionResponseSet( role.getPermissions() ) );
-
-        return roleResponse.build();
     }
 
     protected Set<RoleResponse> roleSetToRoleResponseSet(Set<Role> set) {
@@ -117,7 +94,7 @@ public class UserMapperImpl implements UserMapper {
 
         Set<RoleResponse> set1 = LinkedHashSet.newLinkedHashSet( set.size() );
         for ( Role role : set ) {
-            set1.add( roleToRoleResponse( role ) );
+            set1.add( roleMapper.toRoleResponse( role ) );
         }
 
         return set1;

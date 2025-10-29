@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -21,8 +22,12 @@ import java.util.stream.Collectors;
 public class AIService {
     private static final Logger log = LoggerFactory.getLogger(AIService.class);
 
-    private static final String API_KEY = "AIzaSyAUIB4sWGLFAyNxfCDGkE2OAiaHoIdZ6lk";
-    private static final String MODEL = "gemini-2.5-flash";
+    @Value("${spring.ai.gemini.api-key}")
+    private String API_KEY;
+
+    @Value("${spring.ai.gemini.model}")
+    private String MODEL;
+
 
     public String callGeminiAPI(String prompt) {
         try {
@@ -93,17 +98,17 @@ public class AIService {
         }
     }
 
-public boolean isMusicRelated(String content) {
-    if (content == null || content.isBlank()) {
-        return false; // nếu rỗng hoặc null coi như không liên quan
-    }
+    public boolean isMusicRelated(String content) {
+        if (content == null || content.isBlank()) {
+            return false; // nếu rỗng hoặc null coi như không liên quan
+        }
 
-    // Escape đủ tất cả ký tự đặc biệt để JSON hợp lệ
-    String jsonEscapedContent = content
-            .replace("\\", "\\\\")   // escape backslash
-            .replace("\"", "\\\"")   // escape double quote
-            .replace("\n", "\\n")    // escape newline
-            .replace("\r", "\\r");   // escape carriage return
+        // Escape đủ tất cả ký tự đặc biệt để JSON hợp lệ
+        String jsonEscapedContent = content
+                .replace("\\", "\\\\")   // escape backslash
+                .replace("\"", "\\\"")   // escape double quote
+                .replace("\n", "\\n")    // escape newline
+                .replace("\r", "\\r");   // escape carriage return
 
     String prompt = """
         Bạn là hệ thống kiểm duyệt nội dung mạng xã hội về âm nhạc.

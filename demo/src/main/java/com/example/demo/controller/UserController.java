@@ -5,6 +5,7 @@ import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdateRequest;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
+import com.example.demo.enums.Status;
 import com.example.demo.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -65,10 +66,44 @@ public class UserController {
                 .build();
     }
 
+    // Admin: set status (ACTIVE/INACTIVE/BANNED)
+    @PutMapping("/{userId}/admin/status")
+    ApiResponse<UserResponse> setUserStatus(@PathVariable String userId, @RequestParam Status status) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.setUserStatus(userId, status))
+                .build();
+    }
+
+    // Admin: promote to ADMIN
+    @PutMapping("/{userId}/admin/promote")
+    ApiResponse<UserResponse> promote(@PathVariable String userId) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.promoteToAdmin(userId))
+                .build();
+    }
+
+    // Admin: demote from ADMIN
+    @PutMapping("/{userId}/admin/demote")
+    ApiResponse<UserResponse> demote(@PathVariable String userId) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.demoteFromAdmin(userId))
+                .build();
+    }
+
     @GetMapping("/myinfo")
     ApiResponse<UserResponse> getMyinfo() {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.getMyinfo())
+                .build();
+    }
+
+    @GetMapping("/search")
+    public ApiResponse<List<UserResponse>> searchUsers(@RequestParam("keyword") String keyword) {
+        List<UserResponse> foundUsers = userService.searchUsers(keyword);
+        return ApiResponse.<List<UserResponse>>builder()
+                .code(200) // Mặc định là 200 OK
+                .message("Tìm kiếm người dùng thành công.")
+                .result(foundUsers)
                 .build();
     }
 

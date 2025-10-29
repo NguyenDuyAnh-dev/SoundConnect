@@ -15,6 +15,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, String> {
     boolean existsByUsername(String username);
     Optional<User> findByUsername(String username);
+    long countByStatus(Status status);
+    
     // Lấy danh sách user follow một band
     Page<User> findByFollowedBands_Id(Integer bandId, Pageable pageable);
 
@@ -23,4 +25,5 @@ public interface UserRepository extends JpaRepository<User, String> {
     // Đếm số follower nhanh
     long countByFollowedBands_Id(Integer bandId);
     long countByFollowedVenues_Id(Integer venueId);
+    List<User> findByUsernameContainingIgnoreCaseOrNameContainingIgnoreCase(String username, String name);
 }

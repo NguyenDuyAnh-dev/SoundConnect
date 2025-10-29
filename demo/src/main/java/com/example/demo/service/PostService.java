@@ -31,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 
@@ -440,9 +442,11 @@ public class PostService {
         return recruitingUserResponse;
     }
 
+
+
+
     // tạo post tuyển band cho venue
     public PostRecruitingVenueResponse createRecruitingVenuePost(String username, Integer venueId, PostRecruitingVenueRequest postRecruitingVenueRequest) {
-
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Venue venue = venueRepository.findById(venueId)
@@ -545,7 +549,7 @@ public class PostService {
 
     public PagedResponse<PostRecruitingResponse> getRecruitingPostsForBand(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("postTime").descending());
-        Page<Post> posts = postRepository.findByPostTypeAndStatus(PostType.RECRUITING, Status.ACTIVE, pageable);
+        Page<Post> posts = postRepository.findByPostTypeAndStatusAndBandIsNotNull(PostType.RECRUITING, Status.ACTIVE, pageable);
 
 
         List<PostRecruitingResponse> content = posts.stream().map(post -> {
@@ -629,7 +633,7 @@ public class PostService {
 
     public PagedResponse<PostRecruitingVenueResponse> getRecruitingPostsForVenue(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("postTime").descending());
-        Page<Post> posts = postRepository.findByPostTypeAndStatus(PostType.RECRUITING, Status.ACTIVE, pageable);
+        Page<Post> posts = postRepository.findByPostTypeAndStatusAndVenueIsNotNull(PostType.RECRUITING, Status.ACTIVE, pageable);
 
         List<PostRecruitingVenueResponse> content = posts.stream().map(post -> {
             User author = post.getAuthor();
