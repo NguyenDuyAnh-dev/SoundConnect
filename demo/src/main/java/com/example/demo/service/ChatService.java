@@ -6,6 +6,8 @@ import com.example.demo.dto.response.MessageDTO;
 import com.example.demo.entity.ChatRoom;
 import com.example.demo.entity.Message;
 import com.example.demo.entity.User;
+import com.example.demo.exception.AppException;
+import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.ChatRoomRepository;
 import com.example.demo.repository.MessageRepository;
 import com.example.demo.repository.UserRepository;
@@ -91,6 +93,9 @@ public class ChatService {
     @Transactional
     public ChatRoomResponse findOrCreateOneOnOneRoom(String userId1, String userId2) {
         // Đảm bảo thứ tự để tránh trùng lặp, ví dụ (A,B) và (B,A) là một
+        if (userId1.equals(userId2)) {
+            throw new AppException(ErrorCode.SELF_CHAT_NOT_ALLOWED);
+        }
         String user1IdSorted = userId1.compareTo(userId2) < 0 ? userId1 : userId2;
         String user2IdSorted = userId1.compareTo(userId2) < 0 ? userId2 : userId1;
 
