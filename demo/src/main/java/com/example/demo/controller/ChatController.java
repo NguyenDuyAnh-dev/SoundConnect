@@ -4,6 +4,7 @@ import com.example.demo.dto.request.FindOrCreateRoomRequest;
 import com.example.demo.dto.response.ChatRoomResponse;
 import com.example.demo.dto.response.MessageDTO;
 import com.example.demo.service.ChatService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -17,6 +18,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/chat")
 @RequiredArgsConstructor
+@CrossOrigin("*")
+@SecurityRequirement(name = "api")
 public class ChatController {
 
     private final ChatService chatService;
@@ -43,8 +46,13 @@ public class ChatController {
     public ResponseEntity<MessageDTO> uploadImage(
             @PathVariable Long roomId,
             @RequestParam String senderId,
-            @RequestParam MultipartFile image,
+            // SỬA 1: Thêm (value = "image", required = false) để cho phép gửi file hoặc không
+            @RequestParam(value = "image", required = false) MultipartFile image,
             @RequestParam(required = false) String content) throws IOException {
+
+        if ((image == null || image.isEmpty()) && (content == null || content.isBlank())) {
+            return ResponseEntity.badRequest().build(); // Hoặc trả về 1 DTO lỗi cụ thể
+        }
 
         MessageDTO messageDTO = new MessageDTO();
         messageDTO.setChatRoomId(roomId);
@@ -53,10 +61,10 @@ public class ChatController {
 
         MessageDTO savedMessage = chatService.saveMessage(messageDTO, image);
 
-        // Gửi message qua WebSocket real-time
         messagingTemplate.convertAndSend("/topic/room/" + roomId, savedMessage);
 
         return ResponseEntity.ok(savedMessage);
+
     }
     @GetMapping("/user/{userId}/rooms")
     public ResponseEntity<List<ChatRoomResponse>> getUserChatRooms(@PathVariable String userId) {

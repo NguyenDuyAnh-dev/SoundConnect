@@ -76,12 +76,12 @@ public class ApplicationInitConfig {
             log.info("Application initialization completed .....");
         };
     }
-    @Bean
-    public ModelMapper modelMapper() {
-        ModelMapper modelMapper = new ModelMapper();
-        // Cấu hình để ModelMapper chỉ ánh xạ các trường khớp chính xác
-        modelMapper.getConfiguration()
-                .setMatchingStrategy(MatchingStrategies.STRICT);
-        return modelMapper;
-    }
+//    @Bean
+//    public ModelMapper modelMapper() {
+//        ModelMapper modelMapper = new ModelMapper();
+//        // Cấu hình để ModelMapper chỉ ánh xạ các trường khớp chính xác
+//        modelMapper.getConfiguration()
+//                .setMatchingStrategy(MatchingStrategies.STRICT);
+//        return modelMapper;
+//    }
 }
