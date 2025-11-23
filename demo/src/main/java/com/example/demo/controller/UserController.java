@@ -97,6 +97,16 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("/search")
+    public ApiResponse<List<UserResponse>> searchUsers(@RequestParam("keyword") String keyword) {
+        List<UserResponse> foundUsers = userService.searchUsers(keyword);
+        return ApiResponse.<List<UserResponse>>builder()
+                .code(200) // Mặc định là 200 OK
+                .message("Tìm kiếm người dùng thành công.")
+                .result(foundUsers)
+                .build();
+    }
+
 
 
 }
