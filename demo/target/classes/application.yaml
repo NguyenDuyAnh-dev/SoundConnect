@@ -52,3 +52,6 @@ payos:
   api-key: 0a0e5794-9d2c-4995-98f9-5c495327bf15
   checksum-key: 42ec7e4b6ddc115a63fe910d4b1eada322023adf557550cb9ca332bde99916e1
 
+fcm-credentials:
+  file:
+    path: ./fcm-credentials.json

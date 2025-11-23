@@ -5,6 +5,7 @@ import com.example.demo.dto.request.CommentUpdateRequest;
 import com.example.demo.dto.response.CommentDTO;
 import com.example.demo.dto.response.CommentPageResponse;
 import com.example.demo.dto.response.CommentResponse;
+import com.example.demo.dto.response.NotificationFCM;
 import com.example.demo.entity.Comment;
 import com.example.demo.entity.Post;
 import com.example.demo.entity.User;
@@ -76,6 +77,17 @@ public class CommentService {
 
         // Broadcast realtime comment mới tới tất cả client đang subscribe
         notificationService.broadcastNewComment(postId, response);
+        // Push notification cho chủ bài post (nếu không phải tự comment chính bài của mình)
+        if (!post.getAuthor().getId().equals(user.getId())) {
+            if (post.getAuthor().getFcmToken() != null) {
+                NotificationFCM noti = new NotificationFCM();
+                noti.setTitle("Bài viết của bạn có bình luận mới");
+                noti.setMessage(user.getName() + " đã bình luận: " + comment.getContent());
+                noti.setFcmToken(post.getAuthor().getFcmToken());
+
+                notificationService.sendNotification(noti);
+            }
+        }
         return response;
     }
 

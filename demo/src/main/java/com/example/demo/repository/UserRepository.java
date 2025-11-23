@@ -26,4 +26,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     long countByFollowedBands_Id(Integer bandId);
     long countByFollowedVenues_Id(Integer venueId);
     List<User> findByUsernameContainingIgnoreCaseOrNameContainingIgnoreCase(String username, String name);
+
+    // Có thể tìm user theo token fcm nếu cần
+    Optional<User> findByFcmToken(String fcmToken);
 }
