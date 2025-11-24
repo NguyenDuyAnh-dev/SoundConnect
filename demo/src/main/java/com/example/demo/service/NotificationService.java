@@ -1,15 +1,43 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.response.*;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class NotificationService {
 
     private final SimpMessagingTemplate messagingTemplate;
+
+    public FirebaseMessaging firebaseMessaging;
+
+    public NotificationService(FirebaseApp firebaseApp, SimpMessagingTemplate messagingTemplate) {
+        this.firebaseMessaging = FirebaseMessaging.getInstance(firebaseApp);
+        this.messagingTemplate = messagingTemplate;
+
+    }
+
+    public void sendNotification(NotificationFCM notification) {
+        Notification firebaseNotification = Notification.builder()
+                .setTitle(notification.getTitle())
+                .setBody(notification.getMessage())
+                .build();
+
+        Message message = Message.builder()
+                .setToken(notification.getFcmToken())
+                .setNotification(firebaseNotification)
+                .build();
+        try{
+            firebaseMessaging.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     // ----------------- POST -----------------
