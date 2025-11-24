@@ -1,9 +1,10 @@
-package com.example.demo.configuration;
+package com.example.demo.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import vn.payos.PayOS;
+import vn.payos.core.ClientOptions;
 
 @Configuration
 public class PayOSConfig {
@@ -19,6 +20,12 @@ public class PayOSConfig {
 
     @Bean
     public PayOS payOS() {
-        return new PayOS(clientId, apiKey, checksumKey);
+        ClientOptions options =
+                ClientOptions.builder()
+                        .clientId(clientId)
+                        .apiKey(apiKey)
+                        .checksumKey(checksumKey)
+                        .build();
+        return new PayOS(options);
     }
 }
