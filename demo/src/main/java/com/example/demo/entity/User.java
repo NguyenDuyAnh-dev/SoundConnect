@@ -33,6 +33,7 @@ public class User {
      String lastname;
      LocalDate dob;
      Status status;
+    private String fcmToken; // để biết ai sẽ đc push thông báo
     private String hometown;
     @Lob
     @Basic(fetch = FetchType.LAZY)

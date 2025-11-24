@@ -26,7 +26,8 @@ public class SecurityConfig {
             "/auth/introspect",
             "/auth/logout",
             "/auth/refresh",
-            "/api/deposits/payos-webhook"
+            "/api/deposits/payos-webhook",
+            "/notification/notify"
     };
 
     private static final String[] SWAGGER_ENDPOINTS = {

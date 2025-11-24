@@ -31,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 
@@ -440,9 +442,11 @@ public class PostService {
         return recruitingUserResponse;
     }
 
+
+
+
     // tạo post tuyển band cho venue
     public PostRecruitingVenueResponse createRecruitingVenuePost(String username, Integer venueId, PostRecruitingVenueRequest postRecruitingVenueRequest) {
-
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Venue venue = venueRepository.findById(venueId)

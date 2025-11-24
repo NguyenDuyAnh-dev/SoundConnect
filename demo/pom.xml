@@ -121,6 +121,12 @@
             <artifactId>proto-google-cloud-vision-v1</artifactId>
             <version>3.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.1.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>

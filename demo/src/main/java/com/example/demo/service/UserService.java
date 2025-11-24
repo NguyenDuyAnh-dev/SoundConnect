@@ -143,4 +143,17 @@ public class UserService {
         return userMapper.toUserResponseList(foundUsers);
     }
 
+    public void updateTokenFCM(String username, String token) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        user.setFcmToken(token);
+        userRepository.save(user);
+    }
+
+    public String getTokenFCMByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(User::getFcmToken)
+                .orElse(null);
+    }
+
 }
