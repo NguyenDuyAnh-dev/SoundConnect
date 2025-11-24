@@ -29,7 +29,7 @@ public class DepositService {
     private final UserRepository userRepository;
     private final PaymentTransactionRepository transactionRepository;
 
-    @Value("${server.url}")
+    @Value("${client.url}")
     private String serverUrl;
 
     /**
@@ -126,19 +126,34 @@ public class DepositService {
 
             log.info("Checking transaction status for orderCode: {}. Status from PayOS API: {}", orderCode, statusFromAPI);
 
+//            if (statusFromAPI == PaymentLinkStatus.PAID) {
+//                // 1. Cập nhật trạng thái giao dịch
+//                transaction.setStatus(PaymentTransaction.TransactionStatus.SUCCESS);
+//                transactionRepository.save(transaction);
+//
+//                // 2. CỘNG TIỀN VÀO TÀI KHOẢN USER (Logic gốc của bạn)
+//                User user = transaction.getUser();
+//                BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
+//                user.setBalance(currentBalance.add(transaction.getAmount()));
+//                userRepository.save(user);
+//
+//                log.info("Successfully processed deposit for order: {}. User {} balance updated.", orderCode, user.getUsername());
+//            } else {
             if (statusFromAPI == PaymentLinkStatus.PAID) {
                 // 1. Cập nhật trạng thái giao dịch
                 transaction.setStatus(PaymentTransaction.TransactionStatus.SUCCESS);
-                transactionRepository.save(transaction);
+                transactionRepository.saveAndFlush(transaction); // <--- Đổi thành saveAndFlush
 
-                // 2. CỘNG TIỀN VÀO TÀI KHOẢN USER (Logic gốc của bạn)
+                // 2. CỘNG TIỀN
                 User user = transaction.getUser();
                 BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
                 user.setBalance(currentBalance.add(transaction.getAmount()));
-                userRepository.save(user);
 
-                log.info("Successfully processed deposit for order: {}. User {} balance updated.", orderCode, user.getUsername());
-            } else {
+                // Ép Hibernate ghi xuống DB ngay lập tức, không chờ đợi
+                userRepository.saveAndFlush(user); // <--- Đổi thành saveAndFlush
+
+                log.info("Đã cộng tiền xong!");
+            } else{
                 // Xử lý khi thất bại hoặc hủy
                 transaction.setStatus(PaymentTransaction.TransactionStatus.FAILED);
                 transactionRepository.save(transaction);
