@@ -65,7 +65,7 @@ public class UserService {
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }
 
-    @PostAuthorize("returnObject.username == authentication.name")
+//    @PostAuthorize("returnObject.username == authentication.name")
     public UserResponse getUser(String userId) {
         log.info("In method get users");
         return userMapper.toUserResponse(
@@ -75,7 +75,7 @@ public class UserService {
     public UserResponse getMyinfo(){
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
-        User user = userRepository.findByUsername(name).orElseThrow( () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(name).orElseThrow( () -> new AppException(ErrorCode.USER_NOT_EXISTED));
         return userMapper.toUserResponse(user);
 
     }
