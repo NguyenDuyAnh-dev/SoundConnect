@@ -159,4 +159,14 @@ public class InstrumentPostService {
                 .map(post -> modelMapper.map(post, InstrumentPostResponse.class))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * LẤY CHI TIẾT 1 BÀI ĐĂNG
+     */
+    public InstrumentPostResponse getPostById(Long postId) {
+        InstrumentPost post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+
+        return modelMapper.map(post, InstrumentPostResponse.class);
+    }
 }

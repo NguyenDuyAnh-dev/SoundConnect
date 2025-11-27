@@ -99,4 +99,13 @@ public class InstrumentPostController {
                 .result(posts)
                 .build();
     }
+    // --- MỚI THÊM: LẤY CHI TIẾT 1 BÀI ĐĂNG ---
+    @GetMapping("/{postId}")
+    public ApiResponse<InstrumentPostResponse> getPostById(@PathVariable Long postId) {
+        InstrumentPostResponse post = postService.getPostById(postId);
+
+        return ApiResponse.<InstrumentPostResponse>builder()
+                .result(post)
+                .build();
+    }
 }
