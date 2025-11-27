@@ -193,6 +193,7 @@ public class SalePostService {
         salePostRepository.save(salePost);
 
         SalePostResponse salePostResponse = new SalePostResponse();
+        salePostResponse.setId(salePost.getId());
         salePostResponse.setTitle(request.getTitle());
         salePostResponse.setDescription(request.getDescription());
         salePostResponse.setPrice(request.getPrice());
