@@ -37,6 +37,7 @@ public class ApplicationInitConfig {
 
     @NonFinal
     static final String ADMIN_USER_NAME = "admin";
+    static final String ADMIN_USER_NAME2 = "admin2";
 
     @NonFinal
     static final String ADMIN_PASSWORD = "admin";
@@ -63,14 +64,22 @@ public class ApplicationInitConfig {
                 var roles = new HashSet<Role>();
                 roles.add(adminRole);
 
-                User user = User.builder()
+                User user1 = User.builder()
                         .username(ADMIN_USER_NAME)
                         .password(passwordEncoder.encode(ADMIN_PASSWORD))
                         .status(Status.ACTIVE)
                         .roles(roles)
                         .build();
 
-                userRepository.save(user);
+                User user2 = User.builder()
+                        .username(ADMIN_USER_NAME2)
+                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                        .status(Status.ACTIVE)
+                        .roles(roles)
+                        .build();
+
+                userRepository.save(user1);
+                userRepository.save(user2);
                 log.warn("admin user has been created with default password: admin, please change it");
             }
             log.info("Application initialization completed .....");
