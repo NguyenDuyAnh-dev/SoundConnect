@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.response.NotificationFCM;
 import com.example.demo.dto.response.ReactionPageResponse;
 import com.example.demo.dto.response.ReactionResponse;
 import com.example.demo.entity.Post;
@@ -82,6 +83,23 @@ public class ReactionService {
                 .build();
 
         notificationService.broadcastNewReaction(postId, dto);
+        // Lấy token của chủ bài post
+        String postOwnerToken = post.getAuthor().getFcmToken();
+
+        // Không gửi cho chính người like
+        if (postOwnerToken != null && !post.getAuthor().getId().equals(user.getId())) {
+            NotificationFCM noti = new NotificationFCM();
+            noti.setTitle("Bài viết của bạn có lượt thích mới!");
+            noti.setMessage(user.getUsername() + " đã thích bài viết của bạn.");
+            noti.setFcmToken(postOwnerToken);
+
+            try {
+                notificationService.sendNotification(noti);
+            } catch (Exception e) {
+                log.error("Lỗi gửi FCM notification", e);
+            }
+        }
+
         return reaction;
     }
 
