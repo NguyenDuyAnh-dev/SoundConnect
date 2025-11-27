@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
@@ -153,7 +154,7 @@ public class AuthenticationService {
             throw e;
         }
      }
-
+    @Transactional
      public AuthenticationResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
          var token = request.getToken();
         var signJWT = verifyToken(token, true);
@@ -165,8 +166,8 @@ public class AuthenticationService {
                  .expirationDate(expirationTime)
                  .build();
          invalidatedRepository.save(invalidatedToken);
-         var username = signJWT.getJWTClaimsSet().getSubject();
-         var user = userRepository.findByUsername(username)
+         var id = signJWT.getJWTClaimsSet().getSubject();
+         var user = userRepository.findByUsername(id)
                  .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
          var newToken = generateToken(user);
             return AuthenticationResponse.builder()
