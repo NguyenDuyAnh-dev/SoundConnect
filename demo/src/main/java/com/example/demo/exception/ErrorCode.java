@@ -28,6 +28,9 @@ public enum ErrorCode {
     VENUE_NOT_EXISTED(1015, "Venue is not existed ",HttpStatus.NOT_FOUND),
     USER_ALREADY_IN_BAND(1016, "Band already in band",HttpStatus.BAD_REQUEST),
     BAND_MEMBER_NOT_EXISTED(1017, "Band member not existed",HttpStatus.NOT_FOUND),
+    PRICE_TOO_LOW(400, "Instrument price must be greater than 10,000 VND",HttpStatus.BAD_REQUEST), // Giá < 10k
+    UPLOAD_FILE_FAILED(500, "Failed to upload image to cloud",HttpStatus.BAD_REQUEST), // Lỗi upload ảnh
+    UNAUTHORIZED_ACTION(403, "You do not have permission to perform this action",HttpStatus.BAD_REQUEST), // Không chính chủ
 
     INVALID_FORMAT_DATE(1017, "Invalid date or time format",HttpStatus.BAD_REQUEST),
 
