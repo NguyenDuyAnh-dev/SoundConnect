@@ -42,10 +42,10 @@ public class ApplicationInitConfig {
     static final String ADMIN_PASSWORD = "admin";
 
     @Bean
-//    @ConditionalOnProperty(
-//            prefix = "spring",
-//            value = "datasource.driverClassName",
-//            havingValue = "com.mysql.cj.jdbc.Driver")
+    @ConditionalOnProperty(
+            prefix = "spring",
+            value = "datasource.driverClassName",
+            havingValue = "com.mysql.cj.jdbc.Driver")
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         log.info("Initializing application.....");
         return args -> {
@@ -76,12 +76,12 @@ public class ApplicationInitConfig {
             log.info("Application initialization completed .....");
         };
     }
-//    @Bean
-//    public ModelMapper modelMapper() {
-//        ModelMapper modelMapper = new ModelMapper();
-//        // Cấu hình để ModelMapper chỉ ánh xạ các trường khớp chính xác
-//        modelMapper.getConfiguration()
-//                .setMatchingStrategy(MatchingStrategies.STRICT);
-//        return modelMapper;
-//    }
+    @Bean
+    public ModelMapper modelMapper() {
+        ModelMapper modelMapper = new ModelMapper();
+        // Cấu hình để ModelMapper chỉ ánh xạ các trường khớp chính xác
+        modelMapper.getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STRICT);
+        return modelMapper;
+    }
 }
