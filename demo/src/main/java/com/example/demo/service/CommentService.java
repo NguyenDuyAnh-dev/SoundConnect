@@ -181,7 +181,7 @@ public class CommentService {
                 .map(c -> CommentResponse.builder()
                         .id(c.getId())
                         .authorId(c.getAuthor().getId())
-                        .authorName(c.getAuthor().getName())
+                        .authorName(c.getAuthor().getUsername())
                         .authorAvatar(c.getAuthor().getAvatar())
                         .content(c.getContent())
                         .commentTime(c.getCommentTime())

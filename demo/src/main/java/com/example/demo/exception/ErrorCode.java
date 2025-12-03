@@ -28,12 +28,8 @@ public enum ErrorCode {
     VENUE_NOT_EXISTED(1015, "Venue is not existed ",HttpStatus.NOT_FOUND),
     USER_ALREADY_IN_BAND(1016, "Band already in band",HttpStatus.BAD_REQUEST),
     BAND_MEMBER_NOT_EXISTED(1017, "Band member not existed",HttpStatus.NOT_FOUND),
-
     INVALID_FORMAT_DATE(1017, "Invalid date or time format",HttpStatus.BAD_REQUEST),
-
-    INVALID_CONTENT(1019, "The content of the article is not related to the topic of music", HttpStatus.BAD_REQUEST),
-    SELF_CHAT_NOT_ALLOWED(1020, "You cannot chat to yourself", HttpStatus.BAD_REQUEST);
-
+    INVALID_CONTENT(1019, "The content of the article is not related to the topic of music", HttpStatus.BAD_REQUEST);
 
 
     private int code;
