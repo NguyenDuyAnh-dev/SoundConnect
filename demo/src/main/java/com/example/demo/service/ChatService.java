@@ -7,8 +7,6 @@ import com.example.demo.dto.response.MessageDTO;
 import com.example.demo.entity.ChatRoom;
 import com.example.demo.entity.Message;
 import com.example.demo.entity.User;
-import com.example.demo.exception.AppException;
-import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.ChatRoomRepository;
 import com.example.demo.repository.MessageRepository;
 import com.example.demo.repository.UserRepository;

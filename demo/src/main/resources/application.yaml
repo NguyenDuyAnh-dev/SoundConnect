@@ -21,7 +21,7 @@ spring:
         max-request-size: 40MB
   ai:
     gemini:
-      api-key: "AIzaSyDyjm1bKKIeGsaqyAta4SwgUlZUTZISqKk"
+      api-key: "AIzaSyCSy9vzZYmzMz_UDOAXDyx05cRNfst8xoQ"
       model: "gemini-2.5-flash"
 
 
