@@ -5,6 +5,7 @@ import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.PostRepository;
 import com.example.demo.repository.SalePostRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.InstrumentPostRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +22,7 @@ public class AdminService {
     PostRepository postRepository;
     CommentRepository commentRepository;
     SalePostRepository salePostRepository;
+    InstrumentPostRepository instrumentPostRepository;
 
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
@@ -50,6 +52,20 @@ public class AdminService {
                 .sum();
         
         stats.put("total_revenue", totalRevenue);
+        
+        // Thống kê InstrumentPost
+        stats.put("instrument_posts_total", instrumentPostRepository.count());
+        long instrumentAvailable = instrumentPostRepository.findAll().stream()
+                .filter(post -> post.getStatus() == com.example.demo.entity.InstrumentPost.PostStatus.AVAILABLE)
+                .count();
+        stats.put("instrument_posts_available", instrumentAvailable);
+        
+        // Tính tổng giá trị nhạc cụ đang bán
+        Double totalInstrumentValue = instrumentPostRepository.findAll().stream()
+                .filter(post -> post.getStatus() == com.example.demo.entity.InstrumentPost.PostStatus.AVAILABLE)
+                .mapToDouble(post -> post.getPrice() != null ? post.getPrice().doubleValue() : 0.0)
+                .sum();
+        stats.put("total_instrument_value", totalInstrumentValue);
         
         return stats;
     }
