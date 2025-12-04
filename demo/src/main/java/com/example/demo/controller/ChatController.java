@@ -4,6 +4,7 @@ import com.example.demo.dto.request.FindOrCreateRoomRequest;
 import com.example.demo.dto.response.ChatRoomResponse;
 import com.example.demo.dto.response.MessageDTO;
 import com.example.demo.service.ChatService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -12,8 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
+
+@SecurityRequirement(name = "api")
 @RestController
 @RequestMapping("/chat")
 @RequiredArgsConstructor
