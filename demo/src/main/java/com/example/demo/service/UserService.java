@@ -1,14 +1,13 @@
 package com.example.demo.service;
 
+import com.example.demo.constant.PredefinedRole;
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdateRequest;
 import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
 import com.example.demo.enums.Status;
-import com.example.demo.constant.PredefinedRole;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
-import com.example.demo.mapper.UserMapper;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -16,9 +15,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-
-
-import org.springframework.security.access.prepost.PostAuthorize;
+import org.modelmapper.ModelMapper; // Import ModelMapper
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,68 +32,78 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
 
-  final UserRepository userRepository;
-  final UserMapper userMapper;
-  RoleRepository roleRepository;
+    UserRepository userRepository;
+    RoleRepository roleRepository;
+    ModelMapper modelMapper; // Thay UserMapper bằng ModelMapper
 
+    // Lưu ý: PasswordEncoder không nên để final nếu khởi tạo trực tiếp new() như cũ,
+    // hoặc tốt hơn là Inject Bean từ Config. Ở đây tôi giữ nguyên logic của bạn nhưng bỏ final field injection cho nó.
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
-  PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+    public User createUser(UserCreationRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
 
-    public User createUser(UserCreationRequest request){
+        // Dùng ModelMapper để map từ Request sang Entity
+        User user = modelMapper.map(request, User.class);
 
-      if (userRepository.existsByUsername(request.getUsername() ))  {
-          throw new AppException(ErrorCode.USER_EXISTED);
-      }
-      User user = userMapper.toUser(request);
-      user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setStatus(Status.ACTIVE);
 
-      Status status = Status.ACTIVE;
-        user.setStatus(status);
+        // Logic role cũ của bạn đang comment, tôi giữ nguyên
+        // HashSet<String> roles = new HashSet<>();
+        // roles.add(Role.USER.name());
+        // user.setRoles(roles);
 
-      HashSet<String> roles = new HashSet<>();
-//      roles.add(Role.USER.name());
-//      user.setRoles(roles);
-      return userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-//    @PreAuthorize("hasAuthority('READ_DATA')")
-    public List<UserResponse> getUsers(){
+    public List<UserResponse> getUsers() {
         log.info("In method get all users");
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+        // ModelMapper không tự map List, phải dùng Stream
+        return userRepository.findAll().stream()
+                .map(user -> modelMapper.map(user, UserResponse.class))
+                .collect(Collectors.toList());
     }
 
-//    @PostAuthorize("returnObject.username == authentication.name")
     public UserResponse getUser(String userId) {
         log.info("In method get users");
-        return userMapper.toUserResponse(
-                userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId)));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        return modelMapper.map(user, UserResponse.class);
     }
 
-    public UserResponse getMyinfo(){
+    public UserResponse getMyinfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
-        User user = userRepository.findById(name).orElseThrow( () -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        return userMapper.toUserResponse(user);
-
+        User user = userRepository.findById(name)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return modelMapper.map(user, UserResponse.class);
     }
 
     @Transactional
-    public UserResponse deleteUser(String userId){
+    public UserResponse deleteUser(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         user.setStatus(Status.BANNED);
         userRepository.save(user);
-        return userMapper.toUserResponse(user);
+        return modelMapper.map(user, UserResponse.class);
     }
-    public UserResponse updateUser(String userId, UserUpdateRequest request){
+
+    public UserResponse updateUser(String userId, UserUpdateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        userMapper.updateUser(user, request);
+
+        // QUAN TRỌNG: Map dữ liệu từ request VÀO user hiện có (update object)
+        modelMapper.map(request, user);
+
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         var roles = roleRepository.findAllById(request.getRoles());
         user.setRoles(new HashSet<>(roles));
-        return userMapper.toUserResponse(userRepository.save(user));
+
+        return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -103,7 +111,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         user.setStatus(status);
-        return userMapper.toUserResponse(userRepository.save(user));
+        return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -113,7 +121,7 @@ public class UserService {
         var roles = new HashSet<>(user.getRoles());
         roleRepository.findById(PredefinedRole.ADMIN_ROLE).ifPresent(roles::add);
         user.setRoles(roles);
-        return userMapper.toUserResponse(userRepository.save(user));
+        return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -123,24 +131,21 @@ public class UserService {
         var roles = new HashSet<>(user.getRoles());
         roles.removeIf(r -> PredefinedRole.ADMIN_ROLE.equals(r.getName()));
         user.setRoles(roles);
-        return userMapper.toUserResponse(userRepository.save(user));
+        return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
 
     public List<UserResponse> searchUsers(String keyword) {
+        List<User> users;
         if (keyword == null || keyword.trim().isEmpty()) {
-            // Trả về tất cả người dùng
-            List<User> allUsers = userRepository.findAll();
-            return userMapper.toUserResponseList(allUsers); // Chuyển đổi sang DTO
+            users = userRepository.findAll();
+        } else {
+            users = userRepository.findByUsernameContainingIgnoreCaseOrNameContainingIgnoreCase(keyword, keyword);
         }
 
-        // 1. Tìm kiếm Entity từ Repository
-        List<User> foundUsers = userRepository.findByUsernameContainingIgnoreCaseOrNameContainingIgnoreCase(
-                keyword,
-                keyword
-        );
-
-        // 2. Chuyển đổi danh sách Entity thành danh sách DTO bằng UserMapper
-        return userMapper.toUserResponseList(foundUsers);
+        // Chuyển đổi List<User> sang List<UserResponse> bằng stream và modelMapper
+        return users.stream()
+                .map(user -> modelMapper.map(user, UserResponse.class))
+                .collect(Collectors.toList());
     }
 
     public void updateTokenFCM(String username, String token) {
@@ -155,5 +160,4 @@ public class UserService {
                 .map(User::getFcmToken)
                 .orElse(null);
     }
-
 }
