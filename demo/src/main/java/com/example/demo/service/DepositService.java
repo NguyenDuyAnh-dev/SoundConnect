@@ -7,29 +7,18 @@ import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.PaymentTransactionRepository;
 import com.example.demo.repository.UserRepository;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import vn.payos.PayOS;
-import vn.payos.type.CheckoutResponseData;
-import vn.payos.type.ItemData;
-import vn.payos.type.PaymentData;
-import vn.payos.type.PaymentLinkData;
+import vn.payos.model.v2.paymentRequests.*;
+import vn.payos.model.webhooks.WebhookData;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Random;
 
 @Slf4j
 @Service
@@ -39,54 +28,48 @@ public class DepositService {
     private final PayOS payOS;
     private final UserRepository userRepository;
     private final PaymentTransactionRepository transactionRepository;
-    private final ObjectMapper objectMapper;
 
-    @Value("${server.url}")
+    @Value("${client.url}")
     private String serverUrl;
 
-    @Value("${payos.checksum-key}")
-    private String checksumKey;
-
-    @PostConstruct
-    public void init() {
-        log.info("--- PayOS Configuration Check ---");
-        log.info("Server URL loaded: {}", serverUrl);
-        log.info("Checksum Key loaded: {}", checksumKey != null && !checksumKey.isBlank() ? "OK" : "FAILED - IS NULL OR EMPTY");
-        if (!StringUtils.hasText(checksumKey)) {
-            throw new IllegalStateException("PayOS checksum-key is not configured. Please check your application.yaml file.");
-        }
-        log.info("---------------------------------");
-    }
-
-
+    /**
+     * TẠO LINK NẠP TIỀN
+     */
     @Transactional
     public PaymentResponse createDepositLink(String userId, BigDecimal amount) throws Exception {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        long orderCode = System.currentTimeMillis();
-        String description = "Nap " + amount.intValue() ;
+        // 1. Tạo mã đơn hàng ngẫu nhiên (dùng System.currentTimeMillis cho an toàn)
+        long orderCode = System.currentTimeMillis() * 1000 + new Random().nextInt(1000);
+        // Lưu ý: PayOS yêu cầu orderCode phải là số, và duy nhất.
 
+        String description = "Nap tien " + orderCode;
         String returnUrl = serverUrl + "/api/deposits/success";
         String cancelUrl = serverUrl + "/api/deposits/cancel";
 
-        ItemData item = ItemData.builder()
-                .name("Nạp tiền vào tài khoản")
+        // 2. Tạo Item (Sản phẩm) - Theo SDK mới
+        // Lưu ý: amount của PayOS là Long (số nguyên), cần ép kiểu từ BigDecimal
+        PaymentLinkItem item = PaymentLinkItem.builder()
+                .name("Nạp số dư tài khoản")
                 .quantity(1)
-                .price(amount.intValue())
+                .price(amount.longValue()) // Chuyển BigDecimal sang long
                 .build();
 
-        PaymentData paymentData = PaymentData.builder()
+        // 3. Tạo Request tạo link
+        CreatePaymentLinkRequest paymentData = CreatePaymentLinkRequest.builder()
                 .orderCode(orderCode)
-                .amount(amount.intValue())
+                .amount(amount.longValue())
                 .description(description)
                 .returnUrl(returnUrl)
                 .cancelUrl(cancelUrl)
                 .item(item)
                 .build();
 
-        CheckoutResponseData data = payOS.createPaymentLink(paymentData);
+        // 4. Gọi PayOS tạo link (Dùng paymentRequests().create)
+        CreatePaymentLinkResponse data = payOS.paymentRequests().create(paymentData);
 
+        // 5. Lưu giao dịch PENDING vào DB
         PaymentTransaction transaction = PaymentTransaction.builder()
                 .user(user)
                 .orderCode(String.valueOf(orderCode))
@@ -101,101 +84,70 @@ public class DepositService {
         return new PaymentResponse(data.getCheckoutUrl());
     }
 
+    /**
+     * XỬ LÝ WEBHOOK (TỰ ĐỘNG CỘNG TIỀN)
+     */
     @Transactional
     public void handleWebhook(String webhookBody) throws Exception {
-        if (!StringUtils.hasText(webhookBody)) {
-            log.info("Webhook verification request received with empty body. Acknowledging.");
+        log.info("Received PayOS Webhook body: {}", webhookBody);
+
+        WebhookData webhookData;
+        try {
+            // --- QUAN TRỌNG: SDK TỰ XÁC THỰC CHỮ KÝ Ở ĐÂY ---
+            // Nếu chữ ký sai, hàm này sẽ ném Exception ngay lập tức.
+            // Bạn không cần hàm verifySignature thủ công nữa.
+            webhookData = payOS.webhooks().verify(webhookBody);
+        } catch (Exception e) {
+            log.error("Webhook verification failed!", e);
+            throw new SecurityException("Invalid PayOS webhook signature: " + e.getMessage());
+        }
+
+        // Kiểm tra mã lỗi từ PayOS (00 là thành công)
+        if (!"00".equals(webhookData.getCode())) {
+            log.info("Ignoring webhook event: code={}", webhookData.getCode());
             return;
         }
 
-        Map<String, Object> webhookData = objectMapper.readValue(webhookBody, new TypeReference<>() {});
+        long orderCodeLong = webhookData.getOrderCode();
+        String orderCode = String.valueOf(orderCodeLong);
 
-        Map<String, Object> data = (Map<String, Object>) webhookData.get("data");
-        if (data == null) {
-            log.info("Webhook verification request received. No 'data' field found. Acknowledging.");
-            return;
-        }
-
-        String signature = (String) webhookData.get("signature");
-        if (signature == null || !verifySignature(data, signature)) {
-            log.error("Webhook verification failed for payment event!");
-            throw new SecurityException("Invalid PayOS webhook signature");
-        }
-
-        String orderCode = String.valueOf(data.get("orderCode"));
-
-        Optional<PaymentTransaction> transactionOpt = transactionRepository.findByOrderCode(orderCode);
-
-        if (transactionOpt.isEmpty()) {
-            log.warn("Transaction not found for order code: {}. This might be a test/verification webhook. Acknowledging.", orderCode);
-            return;
-        }
-
-        PaymentTransaction transaction = transactionOpt.get();
+        PaymentTransaction transaction = transactionRepository.findByOrderCode(orderCode)
+                .orElseThrow(() -> new AppException(ErrorCode.TRANSACTION_NOT_FOUND)); // Nhớ thêm error code này hoặc dùng EntityNotFound
 
         if (transaction.getStatus() == PaymentTransaction.TransactionStatus.SUCCESS) {
             log.warn("Transaction {} already processed.", orderCode);
             return;
         }
 
-        PaymentLinkData paymentLinkData = payOS.getPaymentLinkInformation(Long.parseLong(orderCode));
-        if ("PAID".equals(paymentLinkData.getStatus())) {
-            transaction.setStatus(PaymentTransaction.TransactionStatus.SUCCESS);
+        try {
+            // Gọi lại API của PayOS để kiểm tra trạng thái chắc chắn 1 lần nữa (Best Practice)
+            PaymentLink paymentLinkData = payOS.paymentRequests().get(orderCodeLong);
+            PaymentLinkStatus statusFromAPI = paymentLinkData.getStatus();
 
-            User user = transaction.getUser();
-            BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
-            user.setBalance(currentBalance.add(transaction.getAmount()));
+            log.info("Checking transaction status for orderCode: {}. Status from PayOS API: {}", orderCode, statusFromAPI);
+            if (statusFromAPI == PaymentLinkStatus.PAID) {
+                // 1. Cập nhật trạng thái giao dịch
+                transaction.setStatus(PaymentTransaction.TransactionStatus.SUCCESS);
+                transactionRepository.saveAndFlush(transaction); // <--- Đổi thành saveAndFlush
 
-            userRepository.save(user);
-            transactionRepository.save(transaction);
-            log.info("Successfully processed deposit for order: {}. User {} balance updated.", orderCode, user.getUsername());
-        } else {
-            transaction.setStatus(PaymentTransaction.TransactionStatus.FAILED);
-            transactionRepository.save(transaction);
-            log.error("Webhook received for order {} but status is not PAID. Status from PayOS: {}", orderCode, paymentLinkData.getStatus());
-        }
-    }
+                // 2. CỘNG TIỀN
+                User user = transaction.getUser();
+                BigDecimal currentBalance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
+                user.setBalance(currentBalance.add(transaction.getAmount()));
 
-    private boolean verifySignature(Map<String, Object> data, String receivedSignature) throws Exception {
-        List<String> sortedKeys = new ArrayList<>(data.keySet());
-        Collections.sort(sortedKeys);
-        StringBuilder dataToSign = new StringBuilder();
-        for (String key : sortedKeys) {
-            Object value = data.get(key);
+                // Ép Hibernate ghi xuống DB ngay lập tức, không chờ đợi
+                userRepository.saveAndFlush(user); // <--- Đổi thành saveAndFlush
 
-            if (!dataToSign.isEmpty()) {
-                dataToSign.append("&");
+                log.info("Đã cộng tiền xong!");
+            } else{
+                // Xử lý khi thất bại hoặc hủy
+                transaction.setStatus(PaymentTransaction.TransactionStatus.FAILED);
+                transactionRepository.save(transaction);
+                log.error("Webhook received but status is NOT 'PAID'. Actual status: '{}'", statusFromAPI);
             }
-
-            // SỬA LỖI: Xử lý null thành chuỗi rỗng thay vì bỏ qua
-            String valueAsString = ""; // Mặc định là chuỗi rỗng
-            if (value != null) {
-                if (value instanceof Map || value instanceof List) {
-                    valueAsString = objectMapper.writeValueAsString(value);
-                } else {
-                    valueAsString = value.toString();
-                }
-            }
-            dataToSign.append(key).append("=").append(valueAsString);
+        } catch (Exception e) {
+            log.error("Could not confirm payment with PayOS API for order {}. Error: {}", orderCode, e.getMessage());
+            throw e;
         }
-
-        log.info("Data to sign: {}", dataToSign.toString());
-
-        String expectedSignature = createHmac(dataToSign.toString(), this.checksumKey);
-
-        log.info("Received Signature:  {}", receivedSignature);
-        log.info("Expected Signature: {}", expectedSignature);
-
-        return expectedSignature.equals(receivedSignature);
-    }
-
-    private String createHmac(String data, String key) throws NoSuchAlgorithmException, InvalidKeyException {
-        // ... (phần code này không thay đổi)
-        Mac hmacSha256 = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        hmacSha256.init(secretKey);
-        byte[] hash = hmacSha256.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        return HexFormat.of().formatHex(hash);
     }
 }
-

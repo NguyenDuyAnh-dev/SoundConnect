@@ -4,14 +4,20 @@ import com.example.demo.dto.request.ApiResponse;
 import com.example.demo.dto.request.InstrumentPostRequest;
 import com.example.demo.dto.response.InstrumentPostResponse;
 import com.example.demo.service.InstrumentPostService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,62 +25,87 @@ import java.util.List;
 @RequestMapping("/api/postsinstrument")
 @RequiredArgsConstructor
 @Slf4j
-@SecurityRequirement(name = "api") // tao controller moi nho copy qua
+@SecurityRequirement(name = "api")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class InstrumentPostController {
 
-      InstrumentPostService postService;
+    InstrumentPostService postService;
 
-    @ResponseStatus(HttpStatus.CREATED) // Thêm annotation để trả về mã 201
-    @PostMapping
-    public ApiResponse<InstrumentPostResponse> createPost(@Valid @RequestBody InstrumentPostRequest request) {
-        InstrumentPostResponse createdPost = postService.createPost(request);
-        // Đóng gói kết quả vào ApiResponse chuẩn và trả về trực tiếp
+    /**
+     * TẠO BÀI ĐĂNG MỚI
+     * Sử dụng @ModelAttribute để map các trường từ Form-Data vào DTO tự động.
+     */
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<InstrumentPostResponse> createPost(
+            // @ModelAttribute: Tự động lấy title, price, description từ form
+            // @Valid: Kiểm tra validation trong DTO (Not blank, DecimalMin...)
+            @ParameterObject
+            @Valid @ModelAttribute InstrumentPostRequest request,
+
+            // Nhận file ảnh riêng lẻ
+            @RequestParam(value = "image", required = false) MultipartFile image
+    ) {
+        log.info("Dữ liệu nhận được: Title={}, Price={}", request.getTitle(), request.getPrice());
+        // Gọi service xử lý logic + upload ảnh
+        InstrumentPostResponse createdPost = postService.createPost(request, image);
+
         return ApiResponse.<InstrumentPostResponse>builder()
                 .result(createdPost)
-                .message("Post created successfully and fee deducted.") // Thêm message mô tả
+                .message("Post created successfully and fee deducted.")
                 .build();
     }
 
-    // API để cập nhật bài đăng đã có
-    @PutMapping("/{postId}") // Dùng PUT cho việc cập nhật toàn bộ hoặc một phần
+    /**
+     * CẬP NHẬT BÀI ĐĂNG
+     * Cũng dùng @ModelAttribute để tiện cho việc gửi cả text lẫn file mới (nếu có)
+     */
+    @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<InstrumentPostResponse> updatePost(
             @PathVariable Long postId,
-            @Valid @RequestBody InstrumentPostRequest request) {
-        // Lấy username đã được chuyển vào service
-        InstrumentPostResponse updatedPost = postService.updatePost(postId, request); // Bỏ currentUsername
+            @ParameterObject
+            @Valid @ModelAttribute InstrumentPostRequest request,
+            @RequestParam(value = "image", required = false) MultipartFile image
+    ) {
+        InstrumentPostResponse updatedPost = postService.updatePost(postId, request, image);
 
-        // Đóng gói kết quả và trả về trực tiếp (mặc định 200 OK)
         return ApiResponse.<InstrumentPostResponse>builder()
                 .result(updatedPost)
                 .message("Post updated successfully.")
                 .build();
     }
 
-
-    // API để xóa (gỡ) bài đăng
+    /**
+     * XÓA BÀI ĐĂNG
+     */
     @DeleteMapping("/{postId}")
-    @ResponseStatus(HttpStatus.OK) // Trả về 200 OK (hoặc No Content tùy chọn)
-    public ApiResponse<Void> deletePost(@PathVariable Long postId) { // Trả về ApiResponse<Void> hoặc ApiResponse<String>
-        // Lấy username đã được chuyển vào service
-        postService.deletePost(postId); // Bỏ currentUsername
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<Void> deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
 
-        // Trả về ApiResponse thành công
         return ApiResponse.<Void>builder()
                 .message("Post deleted successfully.")
                 .build();
     }
 
-    // API để lấy danh sách tất cả bài đăng
+    /**
+     * LẤY DANH SÁCH BÀI ĐĂNG
+     */
     @GetMapping
     public ApiResponse<List<InstrumentPostResponse>> getAllPosts() {
-        // Gọi service để lấy danh sách
         List<InstrumentPostResponse> posts = postService.getAllPosts();
 
-        // Đóng gói kết quả và trả về trực tiếp (mặc định 200 OK)
         return ApiResponse.<List<InstrumentPostResponse>>builder()
                 .result(posts)
                 .build();
     }
-}
+    // --- MỚI THÊM: LẤY CHI TIẾT 1 BÀI ĐĂNG ---
+    @GetMapping("/{postId}")
+    public ApiResponse<InstrumentPostResponse> getPostById(@PathVariable Long postId) {
+        InstrumentPostResponse post = postService.getPostById(postId);
 
+        return ApiResponse.<InstrumentPostResponse>builder()
+                .result(post)
+                .build();
+    }
+}
