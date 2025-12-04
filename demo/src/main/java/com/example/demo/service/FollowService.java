@@ -33,7 +33,7 @@ public class FollowService {
     // --- FOLLOW / UNFOLLOW BAND ---
     @Transactional
     public FollowResponse followBand(Integer bandId, FollowRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Band band = bandRepository.findById(bandId)
@@ -52,7 +52,7 @@ public class FollowService {
 
     @Transactional
     public FollowResponse unfollowBand(Integer bandId, FollowRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Band band = bandRepository.findById(bandId)
@@ -72,7 +72,7 @@ public class FollowService {
     // --- FOLLOW / UNFOLLOW VENUE ---
     @Transactional
     public FollowResponse followVenue(Integer venueId, FollowRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Venue venue = venueRepository.findById(venueId)
@@ -91,7 +91,7 @@ public class FollowService {
 
     @Transactional
     public FollowResponse unfollowVenue(Integer venueId, FollowRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Venue venue = venueRepository.findById(venueId)
@@ -120,7 +120,7 @@ public class FollowService {
                         FollowerResponse.builder()
                                 .userId(user.getId())
                                 .username(user.getUsername())
-                                .name(user.getName())
+                                .name(user.getFirstname() + " " + user.getLastname())
                                 .avatar(user.getAvatar())
                                 .build()
                 ).collect(Collectors.toList()))
@@ -144,7 +144,7 @@ public class FollowService {
                         FollowerResponse.builder()
                                 .userId(user.getId())
                                 .username(user.getUsername())
-                                .name(user.getName())
+                                .name(user.getFirstname() + " " + user.getLastname())
                                 .avatar(user.getAvatar())
                                 .build()
                 ).collect(Collectors.toList()))

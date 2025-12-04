@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class FollowRequest {
-    private String userId; // ID của user đang follow/unfollow
+    private String username; // ID của user đang follow/unfollow
 }
