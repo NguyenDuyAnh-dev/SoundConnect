@@ -21,7 +21,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +36,7 @@ public class UserService {
 
     UserRepository userRepository;
     RoleRepository roleRepository;
+    CloudinaryService cloudinaryService;
     ModelMapper modelMapper; // Thay UserMapper bằng ModelMapper
 
     // Lưu ý: PasswordEncoder không nên để final nếu khởi tạo trực tiếp new() như cũ,
@@ -92,19 +95,57 @@ public class UserService {
         return modelMapper.map(user, UserResponse.class);
     }
 
-    public UserResponse updateUser(String userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+//    public UserResponse updateUser(String userId, UserUpdateRequest request) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+//
+//        // QUAN TRỌNG: Map dữ liệu từ request VÀO user hiện có (update object)
+//        modelMapper.map(request, user);
+//
+//        user.setPassword(passwordEncoder.encode(request.getPassword()));
+//        var roles = roleRepository.findAllById(request.getRoles());
+//        user.setRoles(new HashSet<>(roles));
+//
+//        return modelMapper.map(userRepository.save(user), UserResponse.class);
+//    }
 
-        // QUAN TRỌNG: Map dữ liệu từ request VÀO user hiện có (update object)
-        modelMapper.map(request, user);
+    public UserResponse updateUser(String username, UserUpdateRequest request, MultipartFile avatar) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        var roles = roleRepository.findAllById(request.getRoles());
-        user.setRoles(new HashSet<>(roles));
+        // Update các trường text
+        if (request.getFirstname() != null) user.setFirstname(request.getFirstname());
+        if (request.getLastname() != null) user.setLastname(request.getLastname());
+        if (request.getDob() != null) user.setDob(request.getDob());
+        user.setName(request.getFirstname() + " " + request.getLastname());
+        if (request.getHometown() != null) user.setHometown(request.getHometown());
+        if (request.getGender() != null) user.setGender(request.getGender());
+        if (request.getAvailable() != null) user.setAvailable(request.getAvailable());
+
+        // PASSWORD
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        // ROLES
+        if (request.getRoles() != null) {
+            var roles = roleRepository.findAllById(request.getRoles());
+            user.setRoles(new HashSet<>(roles));
+        }
+
+        // AVATAR upload lên Cloudinary
+        if (avatar != null && !avatar.isEmpty()) {
+            try {
+                String avatarUrl = cloudinaryService.uploadImage(avatar);
+                user.setAvatar(avatarUrl);
+            } catch (IOException e) {
+                throw new RuntimeException("Không thể upload avatar", e);
+            }
+        }
 
         return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse setUserStatus(String userId, Status status) {

@@ -7,15 +7,19 @@ import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
 import com.example.demo.enums.Status;
 import com.example.demo.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -29,6 +33,9 @@ import java.util.List;
 public class UserController {
 
      UserService userService;
+     @Autowired
+    ObjectMapper objectMapper;
+
     @PostMapping("/register")
     ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request){
         ApiResponse<User> response = new ApiResponse<>();
@@ -60,12 +67,37 @@ public class UserController {
                 .result(userService.deleteUser(userId ))
                 .build();
     }
-    @PutMapping("/{userId}")
-    ApiResponse<UserResponse> updateUser(@PathVariable String userId,@RequestBody UserUpdateRequest request) {
+//    @PutMapping("/{userId}")
+//    ApiResponse<UserResponse> updateUser(@PathVariable String userId,@RequestBody UserUpdateRequest request) {
+//        return ApiResponse.<UserResponse>builder()
+//                .result(userService.updateUser(userId, request))
+//                .build();
+//    }
+    @PutMapping(
+            value = "/{username}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ApiResponse<UserResponse> updateUser(
+            @PathVariable String username,
+            @RequestPart("data") String dataJson,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar
+    ) {
+
+        UserUpdateRequest request;
+        try {
+            request = objectMapper.readValue(dataJson, UserUpdateRequest.class);
+        } catch (Exception e) {
+            throw new RuntimeException("JSON không hợp lệ: " + e.getMessage());
+        }
+
         return ApiResponse.<UserResponse>builder()
-                .result(userService.updateUser(userId, request))
+                .result(userService.updateUser(username, request, avatar))
                 .build();
     }
+
+
+
+
 
     // Admin: set status (ACTIVE/INACTIVE/BANNED)
     @PutMapping("/{userId}/admin/status")

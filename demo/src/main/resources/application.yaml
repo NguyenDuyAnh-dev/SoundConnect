@@ -3,7 +3,11 @@ spring:
     url: "jdbc:mysql://localhost:3306/exe"
     driverClassName: "com.mysql.cj.jdbc.Driver"
     username: root
+<<<<<<< Updated upstream
     password: "123456"
+=======
+    password: 123456
+>>>>>>> Stashed changes
 #spring:
 #  datasource:
 #    url: "jdbc:mysql://mainline.proxy.rlwy.net:49480/railway"
