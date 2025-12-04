@@ -3,13 +3,7 @@ spring:
     url: "jdbc:mysql://localhost:3306/exe"
     driverClassName: "com.mysql.cj.jdbc.Driver"
     username: root
-    password: root
-#spring:
-#  datasource:
-#    url: "jdbc:mysql://mainline.proxy.rlwy.net:49480/railway"
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    username: root
-#    password: LLKfggxXUmzNNXdgOgsvqEZJfkFqoWrv   # mật khẩu lấy từ MYSQL_PUBLIC_URL
+    password: 123456
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,7 +15,7 @@ spring:
         max-request-size: 40MB
   ai:
     gemini:
-      api-key: "AIzaSyDyjm1bKKIeGsaqyAta4SwgUlZUTZISqKk"
+      api-key: "AIzaSyCSy9vzZYmzMz_UDOAXDyx05cRNfst8xoQ"
       model: "gemini-2.5-flash"
 
 
