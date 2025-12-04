@@ -31,9 +31,9 @@ public enum ErrorCode {
     PRICE_TOO_LOW(400, "Instrument price must be greater than 10,000 VND",HttpStatus.BAD_REQUEST), // Giá < 10k
     UPLOAD_FILE_FAILED(500, "Failed to upload image to cloud",HttpStatus.BAD_REQUEST), // Lỗi upload ảnh
     UNAUTHORIZED_ACTION(403, "You do not have permission to perform this action",HttpStatus.BAD_REQUEST), // Không chính chủ
-
     INVALID_FORMAT_DATE(1018, "Invalid date or time format",HttpStatus.BAD_REQUEST),
-    INVALID_CONTENT(1019, "The content of the article is not related to the topic of music", HttpStatus.BAD_REQUEST);
+    INVALID_CONTENT(1019, "The content of the article is not related to the topic of music", HttpStatus.BAD_REQUEST),
+    SELF_CHAT_NOT_ALLOWED(1020, "You do not have permission to perform this action",HttpStatus.BAD_REQUEST),;
 
 
     private int code;
