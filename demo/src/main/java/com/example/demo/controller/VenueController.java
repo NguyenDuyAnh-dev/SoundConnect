@@ -29,9 +29,7 @@ import java.io.IOException;
 @CrossOrigin("*")
 @SecurityRequirement(name = "api")
 public class VenueController {
-    @Autowired
     VenueService venueService;
-    @Autowired
     UserService userService;
 
     @GetMapping

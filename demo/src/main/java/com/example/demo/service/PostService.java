@@ -116,8 +116,8 @@ public class PostService {
         UserResponse userResponse = new UserResponse();
         userResponse.setId(user.getId());
         userResponse.setUsername(user.getUsername());
-        userResponse.setFirstName(user.getFirstname());
-        userResponse.setLastName(user.getLastname());
+        userResponse.setFirstname(user.getFirstname());
+        userResponse.setLastname(user.getLastname());
         userResponse.setAvatar(user.getAvatar());
 
         PostResponse postResponse = new PostResponse();
@@ -193,8 +193,8 @@ public class PostService {
         UserResponse userResponse = new UserResponse();
         userResponse.setId(user.getId());
         userResponse.setUsername(user.getUsername());
-        userResponse.setFirstName(user.getFirstname());
-        userResponse.setLastName(user.getLastname());
+        userResponse.setFirstname(user.getFirstname());
+        userResponse.setLastname(user.getLastname());
         userResponse.setAvatar(user.getAvatar());
 
         PostResponse postResponse = new PostResponse();
@@ -270,8 +270,8 @@ public class PostService {
         UserResponse userResponse = new UserResponse();
         userResponse.setId(user.getId());
         userResponse.setUsername(user.getUsername());
-        userResponse.setFirstName(user.getFirstname());
-        userResponse.setLastName(user.getLastname());
+        userResponse.setFirstname(user.getFirstname());
+        userResponse.setLastname(user.getLastname());
         userResponse.setAvatar(user.getAvatar());
 
         PostResponse postResponse = new PostResponse();
@@ -344,8 +344,8 @@ public class PostService {
         UserResponse userResponse = new UserResponse();
         userResponse.setId(user.getId());
         userResponse.setUsername(user.getUsername());
-        userResponse.setFirstName(user.getFirstname());
-        userResponse.setLastName(user.getLastname());
+        userResponse.setFirstname(user.getFirstname());
+        userResponse.setLastname(user.getLastname());
         userResponse.setAvatar(user.getAvatar());
 
         PostRecruitingResponse recruitingResponse = new PostRecruitingResponse();
@@ -419,8 +419,8 @@ public class PostService {
         UserResponse userResponse = new UserResponse();
         userResponse.setId(user.getId());
         userResponse.setUsername(user.getUsername());
-        userResponse.setFirstName(user.getFirstname());
-        userResponse.setLastName(user.getLastname());
+        userResponse.setFirstname(user.getFirstname());
+        userResponse.setLastname(user.getLastname());
         userResponse.setAvatar(user.getAvatar());
 
         PostRecruitingUserResponse recruitingUserResponse = new PostRecruitingUserResponse();
@@ -505,8 +505,8 @@ public class PostService {
         UserResponse userResponse = new UserResponse();
         userResponse.setId(user.getId());
         userResponse.setUsername(user.getUsername());
-        userResponse.setFirstName(user.getFirstname());
-        userResponse.setLastName(user.getLastname());
+        userResponse.setFirstname(user.getFirstname());
+        userResponse.setLastname(user.getLastname());
         userResponse.setAvatar(user.getAvatar());
 
         VenueResponse venueResponse = new VenueResponse();
@@ -557,8 +557,8 @@ public class PostService {
             UserResponse userResponse = UserResponse.builder()
                     .id(author.getId())
                     .username(author.getUsername())
-                    .firstName(author.getFirstname())
-                    .lastName(author.getLastname())
+                    .firstname(author.getFirstname())
+                    .lastname(author.getLastname())
                     .avatar(author.getAvatar())
                     .build();
 
@@ -598,8 +598,8 @@ public class PostService {
             UserResponse userResponse = UserResponse.builder()
                     .id(author.getId())
                     .username(author.getUsername())
-                    .firstName(author.getFirstname())
-                    .lastName(author.getLastname())
+                    .firstname(author.getFirstname())
+                    .lastname(author.getLastname())
                     .avatar(author.getAvatar())
                     .build();
 
@@ -640,8 +640,8 @@ public class PostService {
             UserResponse userResponse = UserResponse.builder()
                     .id(author.getId())
                     .username(author.getUsername())
-                    .firstName(author.getFirstname())
-                    .lastName(author.getLastname())
+                    .firstname(author.getFirstname())
+                    .lastname(author.getLastname())
                     .avatar(author.getAvatar())
                     .build();
 
@@ -758,8 +758,8 @@ public class PostService {
         UserResponse userResponse = new UserResponse();
         userResponse.setId(user.getId());
         userResponse.setUsername(user.getUsername());
-        userResponse.setFirstName(user.getFirstname());
-        userResponse.setLastName(user.getLastname());
+        userResponse.setFirstname(user.getFirstname());
+        userResponse.setLastname(user.getLastname());
         userResponse.setAvatar(user.getAvatar());
 
         //  7. Mapping sang PostResponse
@@ -859,8 +859,8 @@ public class PostService {
         UserResponse userResponse = new UserResponse();
         userResponse.setId(user.getId());
         userResponse.setUsername(user.getUsername());
-        userResponse.setFirstName(user.getFirstname());
-        userResponse.setLastName(user.getLastname());
+        userResponse.setFirstname(user.getFirstname());
+        userResponse.setLastname(user.getLastname());
         userResponse.setAvatar(user.getAvatar());
 
         PostResponse postResponse = new PostResponse();
