@@ -44,7 +44,7 @@ public class BandJoinRequestController {
     }
 
     //  Lấy danh sách yêu cầu của 1 user (phân trang)
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user/{username}")
     public ResponseEntity<BandJoinRequestPageResponse> getRequestsByUser(
             @PathVariable String username,
             @RequestParam(defaultValue = "1") int page,
