@@ -33,7 +33,8 @@ public enum ErrorCode {
     UNAUTHORIZED_ACTION(403, "You do not have permission to perform this action",HttpStatus.BAD_REQUEST), // Không chính chủ
     INVALID_FORMAT_DATE(1018, "Invalid date or time format",HttpStatus.BAD_REQUEST),
     INVALID_CONTENT(1019, "The content of the article is not related to the topic of music", HttpStatus.BAD_REQUEST),
-    SELF_CHAT_NOT_ALLOWED(1020, "You do not have permission to perform this action",HttpStatus.BAD_REQUEST),;
+    SELF_CHAT_NOT_ALLOWED(1020, "You do not have permission to perform this action",HttpStatus.BAD_REQUEST),
+    CHATROOM_NOT_FOUND(1021,"Phòng chat không tìm thấy", HttpStatus.NOT_FOUND);
 
 
     private int code;
