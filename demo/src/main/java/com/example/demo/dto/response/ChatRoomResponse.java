@@ -1,19 +1,15 @@
 package com.example.demo.dto.response;
-import com.example.demo.dto.request.UserDTO;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
 
+import lombok.Data;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChatRoomResponse {
-        private Long id;
-        private String name;
-        private Set<UserDTO> participants;
+    private Long id;
+    private String name;   // Tên hiển thị (sẽ được xử lý logic)
+    private String avatar; // Ảnh hiển thị (sẽ được xử lý logic)
+    private String type;   // ONE_ON_ONE hoặc GROUP
 
-
+    // Giữ nguyên list participants để Frontend dùng nếu cần
+    private Set<UserResponse> participants;
 }
