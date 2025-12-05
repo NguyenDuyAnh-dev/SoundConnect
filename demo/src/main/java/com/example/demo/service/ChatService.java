@@ -7,14 +7,13 @@ import com.example.demo.dto.response.MessageDTO;
 import com.example.demo.entity.ChatRoom;
 import com.example.demo.entity.Message;
 import com.example.demo.entity.User;
+import com.example.demo.enums.RoomType;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.repository.ChatRoomRepository;
 import com.example.demo.repository.MessageRepository;
 import com.example.demo.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,44 +26,58 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-@Slf4j
 public class ChatService {
 
+    private final ChatRoomRepository chatRoomRepository;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
-    private final ChatRoomRepository chatRoomRepository;
     private final ModelMapper modelMapper;
-    private final Cloudinary cloudinary; // <--- 1. Inject Cloudinary
+    private final Cloudinary cloudinary;
 
-    /**
-     * Lấy lịch sử tin nhắn của một phòng chat.
-     */
-    public List<MessageDTO> getMessagesForRoom(Long roomId) {
-        if (!chatRoomRepository.existsById(roomId)) {
-            throw new EntityNotFoundException("ChatRoom not found with id: " + roomId);
+    // --- 1. TÌM HOẶC TẠO PHÒNG (Logic hiển thị chuẩn Facebook) ---
+    @Transactional
+    public ChatRoomResponse findOrCreateOneOnOneRoom(String userId1, String userId2) {
+        // 1. Chặn tự chat
+        if (userId1.equals(userId2)) {
+            throw new AppException(ErrorCode.SELF_CHAT_NOT_ALLOWED);
         }
-        List<Message> messages = messageRepository.findByChatRoomIdOrderByTimestampAsc(roomId);
-        return messages.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+
+        // 2. Tìm phòng cũ
+        Optional<ChatRoom> existingRoom = chatRoomRepository.findOneOnOneChatRoom(userId1, userId2);
+        if (existingRoom.isPresent()) {
+            // QUAN TRỌNG: Format lại tên/avatar theo góc nhìn của userId1
+            return formatChatRoomResponse(existingRoom.get(), userId1);
+        }
+
+        // 3. Tạo phòng mới
+        User user1 = userRepository.findById(userId1)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user2 = userRepository.findById(userId2)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        ChatRoom newRoom = new ChatRoom();
+        newRoom.setName("Private Chat"); // Tên nội bộ DB
+        newRoom.setType(RoomType.ONE_ON_ONE);
+
+        Set<User> participants = new HashSet<>();
+        participants.add(user1);
+        participants.add(user2);
+        newRoom.setParticipants(participants);
+
+        ChatRoom savedRoom = chatRoomRepository.save(newRoom);
+
+        // QUAN TRỌNG: Format lại tên/avatar trước khi trả về
+        return formatChatRoomResponse(savedRoom, userId1);
     }
 
-    /**
-     * Lưu một tin nhắn mới được gửi từ client.
-     * Đã cập nhật để upload ảnh lên Cloudinary.
-     */
+    // --- 2. GỬI TIN NHẮN (Giữ nguyên logic của bạn) ---
     @Transactional
-    public MessageDTO saveMessage(MessageDTO messageDTO, MultipartFile image) { // Bỏ throws IOException ở chữ ký hàm để xử lý gọn bên trong
-        if (messageDTO.getSenderId() == null) {
-            throw new IllegalArgumentException("Sender ID cannot be null");
-        }
-
+    public MessageDTO saveMessage(MessageDTO messageDTO, MultipartFile image) throws IOException {
         User sender = userRepository.findById(messageDTO.getSenderId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + messageDTO.getSenderId()));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         ChatRoom chatRoom = chatRoomRepository.findById(messageDTO.getChatRoomId())
-                .orElseThrow(() -> new EntityNotFoundException("ChatRoom not found with id: " + messageDTO.getChatRoomId()));
+                .orElseThrow(() -> new AppException(ErrorCode.CHATROOM_NOT_FOUND));
 
         Message message = new Message();
         message.setSender(sender);
@@ -72,90 +85,72 @@ public class ChatService {
         message.setContent(messageDTO.getContent());
         message.setTimestamp(LocalDateTime.now());
 
-        // --- 2. LOGIC UPLOAD CLOUDINARY ---
+        // --- LOGIC UPLOAD CLOUDINARY ---
         if (image != null && !image.isEmpty()) {
             try {
-                // Upload file lên Cloudinary
-                Map uploadResult = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
-
-                // Lấy URL ảnh online (https://...)
-                String url = (String) uploadResult.get("url");
-                message.setImageUrl(url);
-
+                Map uploadResult = cloudinary.uploader().upload(image.getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto"));
+                String imageUrl = (String) uploadResult.get("secure_url");
+                message.setImageUrl(imageUrl);
             } catch (IOException e) {
-                log.error("Upload image failed", e);
-                // Bạn cần thêm mã lỗi UPLOAD_FILE_FAILED vào enum ErrorCode hoặc dùng lỗi chung
-                throw new RuntimeException("Upload image failed");
+                throw new RuntimeException("Lỗi upload ảnh lên Cloudinary: " + e.getMessage());
             }
         }
-        // ----------------------------------
 
         Message savedMessage = messageRepository.save(message);
-
-        return convertToDto(savedMessage);
+        return modelMapper.map(savedMessage, MessageDTO.class);
     }
 
-    /**
-     * Chuyển đổi Message Entity sang MessageDTO.
-     */
-    private MessageDTO convertToDto(Message message) {
-        return modelMapper.map(message, MessageDTO.class);
-    }
+    // --- 3. LẤY LỊCH SỬ TIN NHẮN ---
+    public List<MessageDTO> getMessagesForRoom(Long roomId) {
+        // Lưu ý: Đảm bảo Repository có hàm findByChatRoomIdOrderByTimestampAsc
+        List<Message> messages = messageRepository.findByChatRoomIdOrderByTimestampAsc(roomId);
+        // Hoặc messageRepository.findByChatRoomIdOrderByTimestampAsc(roomId); nếu bạn đã định nghĩa
 
-    private ChatRoomResponse convertToDto(ChatRoom chatRoom) {
-        return modelMapper.map(chatRoom, ChatRoomResponse.class);
-    }
-
-    @Transactional
-    public ChatRoomResponse findOrCreateOneOnOneRoom(String userId1, String userId2) {
-        // Đảm bảo user không chat với chính mình
-        if (userId1.equals(userId2)) {
-            throw new AppException(ErrorCode.SELF_CHAT_NOT_ALLOWED);
-        }
-
-        // Sắp xếp ID để đảm bảo (A, B) giống (B, A)
-        String user1IdSorted = userId1.compareTo(userId2) < 0 ? userId1 : userId2;
-        String user2IdSorted = userId1.compareTo(userId2) < 0 ? userId2 : userId1;
-
-        Optional<ChatRoom> existingRoom = chatRoomRepository.findOneOnOneChatRoom(user1IdSorted, user2IdSorted);
-
-        if (existingRoom.isPresent()) {
-            return convertToDto(existingRoom.get());
-        } else {
-            User user1 = userRepository.findById(userId1)
-                    .orElseThrow(() -> new RuntimeException("User not found with id: " + userId1));
-            User user2 = userRepository.findById(userId2)
-                    .orElseThrow(() -> new RuntimeException("User not found with id: " + userId2));
-
-            ChatRoom newRoom = new ChatRoom();
-            newRoom.setName("Private Chat between " + user1.getUsername() + " and " + user2.getUsername());
-
-            // Thêm participants
-            newRoom.addParticipant(user1);
-            newRoom.addParticipant(user2);
-
-            ChatRoom savedRoom = chatRoomRepository.save(newRoom);
-            return convertToDto(savedRoom);
-        }
-    }
-
-    public List<ChatRoomResponse> getRoomsForUser(String userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-
-        // Lấy danh sách phòng từ entity User và sắp xếp
-        return user.getChatRooms().stream()
-                // Sắp xếp: phòng có tin nhắn cuối cùng mới nhất lên đầu
-                .sorted(Comparator.comparing(
-                        (ChatRoom room) -> {
-                            // Nếu không có tin nhắn cuối, xếp xuống cuối
-                            if (room.getLastMessage() == null) {
-                                return LocalDateTime.MIN;
-                            }
-                            return room.getLastMessage().getTimestamp();
-                        }
-                ).reversed()) // .reversed() để mới nhất lên đầu
-                .map(this::convertToDto) // Chuyển đổi sang DTO
+        return messages.stream()
+                .map(msg -> modelMapper.map(msg, MessageDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    // --- 4. LẤY DANH SÁCH PHÒNG CỦA USER ---
+    public List<ChatRoomResponse> getRoomsForUser(String userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+
+        List<ChatRoom> rooms = chatRoomRepository.findChatRoomsByUserId(userId);
+
+        return rooms.stream()
+                // Tái sử dụng hàm helper để logic đồng nhất
+                .map(room -> formatChatRoomResponse(room, userId))
+                .collect(Collectors.toList());
+    }
+
+    // ==========================================
+    // PRIVATE HELPER METHOD (Logic "Thần thánh")
+    // ==========================================
+    private ChatRoomResponse formatChatRoomResponse(ChatRoom room, String viewerId) {
+        ChatRoomResponse response = modelMapper.map(room, ChatRoomResponse.class);
+
+        if (RoomType.ONE_ON_ONE.equals(room.getType())) {
+            // Tìm người "kia" (người không phải là viewerId)
+            User partner = room.getParticipants().stream()
+                    .filter(user -> !user.getId().equals(viewerId))
+                    .findFirst()
+                    .orElse(null);
+
+            if (partner != null) {
+                // Ưu tiên lấy Name, nếu null thì lấy Username
+                String displayName = (partner.getName() != null && !partner.getName().isBlank())
+                        ? partner.getName()
+                        : partner.getUsername();
+
+                response.setName(displayName);
+                response.setAvatar(partner.getAvatar());
+            }
+        }
+        // Nếu là GROUP thì giữ nguyên name/avatar gốc của phòng
+
+        return response;
     }
 }

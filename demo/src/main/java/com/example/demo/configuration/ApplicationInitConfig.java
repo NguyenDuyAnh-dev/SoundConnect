@@ -4,6 +4,8 @@ import java.util.HashSet;
 
 
 import com.example.demo.constant.PredefinedRole;
+import com.example.demo.dto.response.MessageDTO;
+import com.example.demo.entity.Message;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
 import com.example.demo.enums.Status;
@@ -88,9 +90,13 @@ public class ApplicationInitConfig {
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
-        // Cấu hình để ModelMapper chỉ ánh xạ các trường khớp chính xác
-        modelMapper.getConfiguration()
-                .setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        // Dạy ModelMapper cách map từ Entity sang DTO để không bị null ID
+        modelMapper.createTypeMap(Message.class, MessageDTO.class)
+                .addMapping(src -> src.getSender().getId(), MessageDTO::setSenderId)
+                .addMapping(src -> src.getChatRoom().getId(), MessageDTO::setChatRoomId);
+
         return modelMapper;
     }
 }
