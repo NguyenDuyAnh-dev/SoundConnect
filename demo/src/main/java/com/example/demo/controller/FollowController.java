@@ -41,7 +41,7 @@ public class FollowController {
     @GetMapping("/band/{bandId}/followers")
     public ResponseEntity getBandFollowers(
             @PathVariable Integer bandId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         PagedFollowerResponse pagedFollowerResponse = followService.getBandFollowers(bandId, page, size);
@@ -69,7 +69,7 @@ public class FollowController {
     @GetMapping("/venue/{venueId}/followers")
     public ResponseEntity getVenueFollowers(
             @PathVariable Integer venueId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         PagedFollowerResponse pagedFollowerResponse = followService.getVenueFollowers(venueId, page, size);

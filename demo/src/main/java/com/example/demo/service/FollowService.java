@@ -112,7 +112,7 @@ public class FollowService {
         Band band = bandRepository.findById(bandId)
                 .orElseThrow(() -> new RuntimeException("Band not found"));
 
-        PageRequest pageable = PageRequest.of(page - 11, size);
+        PageRequest pageable = PageRequest.of(page - 1, size);
         Page<User> userPage = userRepository.findByFollowedBands_Id(bandId, pageable);
 
         return PagedFollowerResponse.builder()
@@ -136,7 +136,7 @@ public class FollowService {
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() -> new RuntimeException("Venue not found"));
 
-        PageRequest pageable = PageRequest.of(page - 11, size);
+        PageRequest pageable = PageRequest.of(page - 1, size);
         Page<com.example.demo.entity.User> userPage = userRepository.findByFollowedVenues_Id(venueId, pageable);
 
         return PagedFollowerResponse.builder()
