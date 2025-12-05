@@ -25,6 +25,7 @@ public class UserUpdateRequest {
      String hometown;
      String gender;
      Boolean available;
+     String avatar;
 
      @DobConstraint(min = 18, message = "INVALID_DOB")
      @JsonFormat(pattern = "yyyy-MM-dd")

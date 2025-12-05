@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.demo.constant.PredefinedRole;
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdateRequest;
@@ -24,8 +26,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +41,7 @@ public class UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
     CloudinaryService cloudinaryService;
+    private final Cloudinary cloudinary;
     ModelMapper modelMapper; // Thay UserMapper bằng ModelMapper
 
     // Lưu ý: PasswordEncoder không nên để final nếu khởi tạo trực tiếp new() như cũ,
@@ -109,18 +114,21 @@ public class UserService {
 //        return modelMapper.map(userRepository.save(user), UserResponse.class);
 //    }
 
-    public UserResponse updateUser(String username, UserUpdateRequest request, MultipartFile avatar) {
+    @Transactional
+    public UserResponse updateUser(String username, UserUpdateRequest request) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Update các trường text
         if (request.getFirstname() != null) user.setFirstname(request.getFirstname());
         if (request.getLastname() != null) user.setLastname(request.getLastname());
-        if (request.getDob() != null) user.setDob(request.getDob());
-        user.setName(request.getFirstname() + " " + request.getLastname());
+        user.setName(
+                (request.getFirstname() != null ? request.getFirstname() : "") + " " +
+                        (request.getLastname() != null ? request.getLastname() : "")
+        );
         if (request.getHometown() != null) user.setHometown(request.getHometown());
         if (request.getGender() != null) user.setGender(request.getGender());
         if (request.getAvailable() != null) user.setAvailable(request.getAvailable());
+        if (request.getDob() != null) user.setDob(request.getDob());
 
         // PASSWORD
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
@@ -133,18 +141,22 @@ public class UserService {
             user.setRoles(new HashSet<>(roles));
         }
 
-        // AVATAR upload lên Cloudinary
-        if (avatar != null && !avatar.isEmpty()) {
+        // AVATAR base64
+        if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
             try {
-                String avatarUrl = cloudinaryService.uploadImage(avatar);
-                user.setAvatar(avatarUrl);
+                byte[] bytes = Base64.getDecoder().decode(request.getAvatar());
+                Map uploadResult = cloudinary.uploader().upload(bytes, ObjectUtils.emptyMap());
+                String url = (String) uploadResult.get("url");
+                user.setAvatar(url);
             } catch (IOException e) {
-                throw new RuntimeException("Không thể upload avatar", e);
+                log.error("Upload avatar failed", e);
+                throw new RuntimeException("Upload avatar failed");
             }
         }
 
         return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
+
 
 
     @PreAuthorize("hasRole('ADMIN')")

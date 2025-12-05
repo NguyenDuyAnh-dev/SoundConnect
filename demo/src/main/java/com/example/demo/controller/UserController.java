@@ -73,27 +73,16 @@ public class UserController {
 //                .result(userService.updateUser(userId, request))
 //                .build();
 //    }
-    @PutMapping(
-            value = "/{username}",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ApiResponse<UserResponse> updateUser(
-            @PathVariable String username,
-            @RequestPart("data") String dataJson,
-            @RequestPart(value = "avatar", required = false) MultipartFile avatar
-    ) {
+@PutMapping("/{username}")
+public ApiResponse<UserResponse> updateUser(
+        @PathVariable String username,
+        @RequestBody UserUpdateRequest request
+) {
+    return ApiResponse.<UserResponse>builder()
+            .result(userService.updateUser(username, request))
+            .build();
+}
 
-        UserUpdateRequest request;
-        try {
-            request = objectMapper.readValue(dataJson, UserUpdateRequest.class);
-        } catch (Exception e) {
-            throw new RuntimeException("JSON không hợp lệ: " + e.getMessage());
-        }
-
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.updateUser(username, request, avatar))
-                .build();
-    }
 
 
 
