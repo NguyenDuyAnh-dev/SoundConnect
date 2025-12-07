@@ -127,7 +127,7 @@ fcm-credentials:
     path: ${FCM_CREDENTIALS_PATH:./fcm-credentials.json}
 
 client:
-  url: ${CLIENT_URL}
+  url: https://soundconnect.vercel.app/
 
 logging:
   level:
