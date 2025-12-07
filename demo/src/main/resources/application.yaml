@@ -127,7 +127,7 @@ fcm-credentials:
     path: ${FCM_CREDENTIALS_PATH:./fcm-credentials.json}
 
 client:
-  url: ${CLIENT_URL:http://localhost:3000}
+  url: ${CLIENT_URL}
 
 logging:
   level:
